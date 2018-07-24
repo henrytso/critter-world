@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="880.0" prefWidth="1277.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="mvc.Controller">
+   <children>
+      <BorderPane prefHeight="742.0" prefWidth="176.0" />
+      <VBox alignment="TOP_CENTER" layoutY="74.0" prefHeight="576.0" prefWidth="158.0" spacing="10.0" AnchorPane.bottomAnchor="254.0" AnchorPane.leftAnchor="6.0" AnchorPane.topAnchor="50.0">
+         <children>
+            <Button fx:id="loadCritterButton" mnemonicParsing="false" onAction="#loadCritter" text="Load Critter" />
+            <HBox prefHeight="33.0" prefWidth="158.0" spacing="3.0">
+               <children>
+                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#startWorld" text="Start" />
+                  <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopWorld" text="Stop" />
+                  <Button fx:id="stepButton" mnemonicParsing="false" onAction="#stepWorld" text="Step" />
+               </children>
+            </HBox>
+            <VBox prefHeight="64.0" prefWidth="158.0" spacing="20.0">
+               <children>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Label prefHeight="32.0" prefWidth="88.0" text="Time Step:   " />
+                        <TextField fx:id="timeField" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="78.0" />
+                     </children>
+                     <padding>
+                        <Insets top="10.0" />
+                     </padding>
+                  </HBox>
+                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="25.0">
+                     <children>
+                        <Label prefHeight="32.0" prefWidth="88.0" text="Critters Alive:" />
+                        <TextField fx:id="critterCount" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="45.0" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
+            <Label text="Frames per Second:" />
+            <Slider fx:id="fpsSlider" majorTickUnit="59.0" max="60.0" min="1.0" minorTickCount="60" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+            <HBox prefHeight="31.0" prefWidth="158.0" spacing="35.0">
+               <children>
+                  <Label fx:id="fpsLabel" prefHeight="30.0" prefWidth="85.0" text="FPS: " />
+                  <TextField fx:id="fpsArea" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="38.0">
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                  </TextField>
+               </children>
+            </HBox>
+            <HBox prefHeight="49.0" prefWidth="158.0" spacing="31.0">
+               <children>
+                  <Button fx:id="zoomOutButton" mnemonicParsing="false" onAction="#zoomOut" text="-" />
+                  <Label text="Zoom">
+                     <padding>
+                        <Insets top="5.0" />
+                     </padding>
+                  </Label>
+                  <Button fx:id="zoomInButton" mnemonicParsing="false" onAction="#zoomIn" text="+" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
+      <ScrollPane fx:id="scrollPane" layoutX="160.0" layoutY="50.0" prefHeight="671.0" prefWidth="826.0" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="50.0" />
+      <MenuBar fx:id="menuBar" layoutX="253.0" layoutY="-2.0" prefHeight="38.0" prefWidth="1277.0" AnchorPane.bottomAnchor="842.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="File">
+            <items>
+                  <MenuItem mnemonicParsing="false" onAction="#newWorld" text="New World" />
+                  <MenuItem mnemonicParsing="false" onAction="#loadWorld" text="Load World" />
+                  <MenuItem fx:id="closeButton" mnemonicParsing="false" onAction="#closeWorld" text="Exit" />
+            </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <TextArea fx:id="infoArea" editable="false" layoutX="1010.0" layoutY="52.0" prefHeight="671.0" prefWidth="247.0" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="1010.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0" />
+      <TextArea fx:id="messages" editable="false" layoutX="397.0" layoutY="732.0" prefHeight="148.0" prefWidth="144.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="740.0" />
+   </children>
+</AnchorPane>

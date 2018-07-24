@@ -1,0 +1,19 @@
+BASE_DAMAGE 100 {The multiplier for all damage done by attacking}
+DAMAGE_INC 0.2 {Controls how quickly increased offensive or defensive ability affects damage}
+ENERGY_PER_SIZE 500 {How much energy a critter can have per point of size}
+FOOD_PER_SIZE 200 {How much food is created per point of size when a critter dies}
+MAX_SMELL_DISTANCE 10 {Maximum distance at which food can be sensed}
+ROCK_VALUE -1 {The value reported when a rock is sensed}
+COLUMNS 50 {Default number of columns in the world map}
+ROWS 68 {Default number of rows in the world map}
+MAX_RULES_PER_TURN 999 {The maximum number of rules that can be run per critter turn}
+SOLAR_FLUX 1 {Energy gained from sun by doing nothing}
+MOVE_COST 3 {Energy cost of moving (per unit size)}
+ATTACK_COST 5 {Energy cost of attacking (per unit size)}
+GROW_COST 1 {Energy cost of growing (per size and complexity)}
+BUD_COST 9 {Energy cost of budding (per unit complexity)}
+MATE_COST 5 {Energy cost of successful mating (per unit complexity)}
+RULE_COST 2 {Complexity cost of having a rule}
+ABILITY_COST 25 {Complexity cost of having an ability point}
+INITIAL_ENERGY 250 {Energy of a newly birthed critter}
+MIN_MEMORY 8 {Minimum number of memory entries in a critter}
