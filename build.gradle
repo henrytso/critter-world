@@ -1,0 +1,41 @@
+// Apply the java plugin to add support for Java
+apply plugin: 'java'
+
+// Makes is easy to build a jar and run it
+apply plugin: 'application'
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    // Use 'jcenter' for resolving your dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+// In this section you declare the dependencies for your production and test code
+dependencies {
+    // The spark webserver
+    compile 'com.sparkjava:spark-core:2.3'
+    // GSON, for parsing and generating JSON
+    compile group: 'com.google.code.gson', name: 'gson', version: '2.4'
+
+    // Specifies that you want to run your tests with junit
+    testCompile 'junit:junit:4.12'
+}
+
+test {
+    testLogging {
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
+// Set the name of your main class here
+mainClassName = "client.Main"
+
+jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+   }
+   from {
+       configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+   }
+}

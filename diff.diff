@@ -1,0 +1,4613 @@
+diff --git a/build.gradle b/build.gradle
+index 8796bf1..d898be5 100644
+--- a/build.gradle
++++ b/build.gradle
+@@ -29,7 +29,7 @@ test {
+ }
+ 
+ // Set the name of your main class here
+-mainClassName = "mvc.Main"
++mainClassName = "client.Main"
+ 
+ jar {
+     manifest {
+diff --git a/examples/smell-critter.txt b/examples/smell-critter.txt
+new file mode 100644
+index 0000000..e5bcb80
+--- /dev/null
++++ b/examples/smell-critter.txt
+@@ -0,0 +1,12 @@
++species: smell
++memsize: 9
++defense: 2
++offense: 3
++size: 1
++energy: 500
++posture: 16
++{ENERGY > SIZE * 400 and SIZE < 7} --> grow;
++random[5] = 1 --> forward;
++random[4] = 1 --> left;
++smell = 10 --> backward;
++1 = 1 --> wait; // mostly soak up the rays
+\ No newline at end of file
+diff --git a/src/main/java/ast/Action.java b/src/main/java/ast/Action.java
+index b461f43..c9ef3b2 100644
+--- a/src/main/java/ast/Action.java
++++ b/src/main/java/ast/Action.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ /**
+@@ -29,7 +30,7 @@ public class Action extends Command {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/ast/BinaryNode.java b/src/main/java/ast/BinaryNode.java
+index 8d7987d..5d35a0a 100644
+--- a/src/main/java/ast/BinaryNode.java
++++ b/src/main/java/ast/BinaryNode.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenCategory;
+ import parse.TokenType;
+ 
+@@ -43,8 +44,8 @@ public abstract class BinaryNode implements Node {
+ 	 */
+ 	public abstract BinaryNode clone();
+ 	
+-	//todo
+-	public abstract int critAccept(Interpreter i);
++	//todo --> can actually define method bc all are the same.
++	public abstract Outcome critAccept(Interpreter i);
+ 	
+ 	/**
+ 	 * Creates a subtree of the same type as the current node and returns it.
+diff --git a/src/main/java/ast/ConditionNode.java b/src/main/java/ast/ConditionNode.java
+index 50d6676..0cb2b13 100644
+--- a/src/main/java/ast/ConditionNode.java
++++ b/src/main/java/ast/ConditionNode.java
+@@ -1,6 +1,7 @@
+ package ast;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ /**
+@@ -41,12 +42,13 @@ public class ConditionNode extends BinaryNode implements Condition {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
+-		boolean result = i.eval(this);
+-		if(result)
+-			return 1;
+-		
+-		return 0;
++	public Outcome critAccept(Interpreter i) {
++//		boolean result = i.eval(this);
++//		if(result)
++//			return 1;
++//		
++//		return 0;
++		return i.eval(this);
+ 	}
+ 	
+ 	@Override
+diff --git a/src/main/java/ast/Expression.java b/src/main/java/ast/Expression.java
+index 320f7ba..0cbf168 100644
+--- a/src/main/java/ast/Expression.java
++++ b/src/main/java/ast/Expression.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenCategory;
+ import parse.TokenType;
+ 
+@@ -44,7 +45,7 @@ public class Expression extends BinaryNode implements Expr {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 
+diff --git a/src/main/java/ast/FactorNode.java b/src/main/java/ast/FactorNode.java
+index cdb53e7..1b4c17b 100644
+--- a/src/main/java/ast/FactorNode.java
++++ b/src/main/java/ast/FactorNode.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ public class FactorNode extends TermNode {
+@@ -29,7 +30,7 @@ public class FactorNode extends TermNode {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/ast/MemNode.java b/src/main/java/ast/MemNode.java
+index b426833..f9e0593 100644
+--- a/src/main/java/ast/MemNode.java
++++ b/src/main/java/ast/MemNode.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ public class MemNode extends FactorNode{
+@@ -22,7 +23,7 @@ public class MemNode extends FactorNode{
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/ast/NumNode.java b/src/main/java/ast/NumNode.java
+index 445f499..30b8ec9 100644
+--- a/src/main/java/ast/NumNode.java
++++ b/src/main/java/ast/NumNode.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ /**
+@@ -32,7 +33,7 @@ public class NumNode extends FactorNode {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/ast/SensorNode.java b/src/main/java/ast/SensorNode.java
+index dfe75cc..90f315a 100644
+--- a/src/main/java/ast/SensorNode.java
++++ b/src/main/java/ast/SensorNode.java
+@@ -3,6 +3,7 @@ package ast;
+ import java.util.Random;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ public class SensorNode extends FactorNode{
+@@ -28,7 +29,7 @@ public class SensorNode extends FactorNode{
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/ast/Update.java b/src/main/java/ast/Update.java
+index 618a8af..b4dc317 100644
+--- a/src/main/java/ast/Update.java
++++ b/src/main/java/ast/Update.java
+@@ -1,6 +1,7 @@
+ package ast;
+ 
+ import interpret.Interpreter;
++import interpret.Outcome;
+ import parse.TokenType;
+ 
+ /**
+@@ -26,7 +27,7 @@ public class Update extends Command {
+ 	}
+ 	
+ 	@Override
+-	public int critAccept(Interpreter i) {
++	public Outcome critAccept(Interpreter i) {
+ 		return i.eval(this);
+ 	}
+ 	
+diff --git a/src/main/java/client/Client.java b/src/main/java/client/Client.java
+index 38968e0..4ff36b2 100644
+--- a/src/main/java/client/Client.java
++++ b/src/main/java/client/Client.java
+@@ -1,21 +1,354 @@
+ package client;
+ 
++import java.io.BufferedReader;
+ import java.io.IOException;
++import java.io.InputStreamReader;
++import java.io.PrintWriter;
+ import java.net.HttpURLConnection;
++import java.net.MalformedURLException;
+ import java.net.URL;
+ 
++import com.google.gson.Gson;
++
++import javafx.scene.control.TextArea;
++import client.ClientGrid.WorldInfoBundle;
++
++/**
++ * A class that send and receives info about
++ * users commands and critter world.
++ */
+ public class Client {
+-	
++
++	Gson gson;
+ 	private URL url;
+-	HttpURLConnection connection;
+-	
+-	public Client(URL url) throws IOException {
++	private static String sessionId;
++	private TextArea messages;
++
++	/**
++	 * Creates a class that will connect with the specified server.
++	 * @param url the url of the server
++	 */
++	public Client(URL url) {
++		gson = new Gson();
+ 		this.url = url;
+-		this.connection = (HttpURLConnection) this.url.openConnection();
+ 	}
+ 	
+-	//getWorld()
++	/**
++	 * Adds a text area where this class can print
++	 * user friendly error messages when something goes wrong, 
++	 * or other helpful information.
++	 * @param messages  A textArea displayed in the GUI
++	 */
++	public void connectMessages(TextArea messages) {
++		this.messages = messages;
++	}
++
++	/**
++	 * Makes a world on the server with from the given description.
++	 * No critters will be placed in the world.   
++	 * @param text  A description of the world, continaing name,
++	 * size, rock and food placements.  " " will make a randomly
++	 * generated world.
++	 */
++	public void makeWorld(String text) {
++		try {
++			HttpURLConnection connection = (HttpURLConnection) new URL("http://localhost:8080/world?session_id=2101010").openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setDoOutput(true);
++			connection.setRequestMethod("POST");
++			
++			PrintWriter w = new PrintWriter(connection.getOutputStream());
++			MakeWorldBundle bundle = new MakeWorldBundle(text);
++			w.write(gson.toJson(bundle, MakeWorldBundle.class));
++			w.flush();
++
++			BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()));
++			r.readLine();
++			
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			messages.appendText("Unusable world file");
++		}
++	}
++
++	/**
++	 * Gets information about the world and all hexes.
++	 * @return Information needed to visually display
++	 * the world with all critters, food and rocks.
++	 * Also includes information about how the world in running.
++	 */
++	public WorldInfoBundle getWorld() {
++		return getWorld(0);
++	}
+ 	
++	/**
++	 * Gets all information about the world that it is authorized
++	 * to access, but gets information only about hexes that have
++	 * been changed sine {@code updateSince}
++	 * @param updateSince the version number of the world that is
++	 * compared to the current one. 
++	 * @return  The differences between current world and the world
++	 * with the specified version number.
++	 */
++	public WorldInfoBundle getWorld(int updateSince) {
++		try {
++			URL newURL = new URL(url + "/world?session_id=" + sessionId + "&update_since=" + updateSince);
++			HttpURLConnection connection = (HttpURLConnection) newURL.openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setRequestMethod("GET");
++			connection.connect();
++			
++			BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()));
++			WorldInfoBundle bundle = gson.fromJson(r, WorldInfoBundle.class);
++			return bundle;
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			messages.appendText("Add a world\n");
++		}
++		return null;
++	}
++
++	/**
++	 * Adds one critter at row, col OR multiple critters at random locations. 
++	 * Requires that row and col will are -1 if creating multiple critters.
++	 * and num is -1 if creating one critter at row, col 
++	 * @param species  Name of critter(s)
++	 * @param program  Program as defined by grammar
++	 * @param mem   mem array of critter's attributes
++	 * @param row  row to insert critter, -1 is no row
++	 * @param col  col to insert critter, -1 is no col
++	 * @param num number of critters to make
++	 */
++	public void addCritter(String species, String program, int[] mem, int row, int col, int num) {
++		try {
++			URL newURL = new URL(url + "/critters?session_id=" + sessionId);
++			HttpURLConnection connection = (HttpURLConnection) newURL.openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setDoOutput(true); // send a POST message
++			connection.setRequestMethod("POST");
++
++			PrintWriter w = new PrintWriter(connection.getOutputStream());
++			MakeCritterBundle bundle;
++			if (num == -1)
++				bundle = new MakeCritterBundle(species, program, mem, row, col);
++			else
++				bundle = new MakeCritterBundle(species, program, mem, num);
++			w.println(gson.toJson(bundle, MakeCritterBundle.class));
++			w.flush();
++			BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()));
++			if (connection.getResponseCode() == 401)
++				messages.appendText(r.readLine());
++			else {
++				CrittersResponseBundle response = gson.fromJson(r, CrittersResponseBundle.class);
++				int count = 0;
++				for (int i = 0; i < response.ids().length; i++) {
++					if (response.ids()[i] != -1)
++						count++;
++				}
++				messages.appendText("Successfully loaded " + (count) + "/" + response.ids().length + " "
++						+ response.species_id + " critters.\n");
++			}
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			messages.appendText("Could not use critter defintion in file\n");
++		}
++	}
++
++	/**
++	 * Steps the world {@code count} turns for each critter
++	 * @param count the number of steps to increase timestep by
++	 * Usually = 1
++	 */
++	public void step(int count) {
++		try {
++			URL newURL = new URL(url + "/step?session_id=" + sessionId);
++			HttpURLConnection connection = (HttpURLConnection) newURL.openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setDoOutput(true);
++			connection.setRequestMethod("POST");
++			
++			PrintWriter w = new PrintWriter(connection.getOutputStream());
++			w.write(gson.toJson(new StepRequestBundle(count)));
++			w.flush();
++			
++			BufferedReader r = new BufferedReader(new InputStreamReader(connection.getInputStream()));
++			messages.appendText(r.readLine() + "\n");
++			
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			messages.appendText("Failed to step the world\n");
++		}
++	}
+ 	
++	/**
++	 * Changes the rate that the simulation progresses automatically.
++	 * @param rate The desired rate, in steps per second.
++	 * 0 means the simulation will stop.
++	 */
++	public void changeRate(float rate) {
++		try {
++			URL newURL = new URL(url + "/run?session_id=" + sessionId);
++			HttpURLConnection connection = (HttpURLConnection) newURL.openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setDoOutput(true);
++			connection.setRequestMethod("POST");
++			
++			PrintWriter w = new PrintWriter(connection.getOutputStream());
++			w.write(gson.toJson(new RateChangeBundle(rate)));
++			w.flush();
++			
++			if (connection.getResponseCode() == 200)
++				messages.appendText("Successfully changed rate to " + rate + " steps per second.\n");
++			else
++				messages.appendText("Failed to change step rate.\n");
++			
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			messages.appendText("Failed to change step rate.\n");
++		}
++	}
++	
++	/**
++	 * Tries to login to server
++	 * @param level either "read", "write" or "admin".
++	 * 		determines access to info/commands
++	 * @param password  password associated with desired access
++	 * @return true if user sucessfully logged in.  False otherwise.
++	 */
++	public boolean login(String level, String password) {
++		try {
++			URL newURL = new URL(url + "/login");
++			HttpURLConnection connection = (HttpURLConnection) newURL.openConnection();
++			connection.setRequestProperty("Content-Type", "application/json");
++			connection.setDoOutput(true);
++			connection.setRequestMethod("POST");
++			
++			PrintWriter w = new PrintWriter(connection.getOutputStream());
++			w.write(gson.toJson(new LoginBundle(level, password)));
++			w.flush();
++			
++			BufferedReader r = new BufferedReader( new InputStreamReader(connection.getInputStream()));
++			if (connection.getResponseCode() == 200) {
++				SessionIdBundle bundle = gson.fromJson(r, SessionIdBundle.class);
++				sessionId = bundle.id;
++				return true;
++			}
++			else
++				return false;
++		} catch (MalformedURLException e) {
++			usage();
++		} catch (IOException e) {
++			return false;
++		}
++		return false;
++	}
++	
++	//for sending login info
++	private class LoginBundle {
++		String level;
++		String password;
++		
++		public LoginBundle(String level, String password) {
++			this.level = level;
++			this.password = password;
++		}
++	}
+ 	
++	//receiving session id after login
++	private class SessionIdBundle {
++		String id;
++		
++		public SessionIdBundle(String id) {
++			this.id = id;
++		}
++	}
++	
++	//for seding info about making a world
++	private class MakeWorldBundle {
++		private String description;
++
++		public MakeWorldBundle(String description) {
++			this.description = description;
++		}
++	}
++
++	//for sending info  about making a critter/critters
++	private class MakeCritterBundle {
++		private String speciesId;
++		private String program;
++		private int[] mem;
++		private LocationBundle[] positions;
++		private int num;
++
++		// Make one critter at row, col
++		public MakeCritterBundle(String id, String program, int[] mem, int row, int col) {
++			speciesId = id;
++			this.program = program;
++			this.mem = mem;
++			positions = new LocationBundle[1];
++			positions[0] = new LocationBundle(row, col);
++		}
++
++		// Make {@code num} critters at random locations
++		public MakeCritterBundle(String id, String program, int[] mem, int num) {
++			speciesId = id;
++			this.program = program;
++			this.mem = mem;
++			positions = null;
++			this.num = num;
++		}
++	}
++
++	//describe a location of a hex
++	private class LocationBundle {
++		private int row;
++		private int col;
++
++		public LocationBundle(int r, int c) {
++			row = r;
++			col = c;
++		}
++	}
++
++	//stores info for stepping world
++	private class StepRequestBundle {
++		private int count;
++		
++		public StepRequestBundle(int count) {
++			this.count = count;
++		}
++	}
++	
++	private class RateChangeBundle {
++		private float rate;
++		
++		public RateChangeBundle(float rate) {
++			this.rate = rate;
++		}
++	}
++	
++	//stores critter's ids and names
++	private class CrittersResponseBundle {
++		private String species_id;
++		private int[] ids;
++
++		public String speciesId() {
++			return species_id;
++		}
++
++		public int[] ids() {
++			return ids;
++		}
++	}
++
++	private void usage() {
++		System.err.println("Usage: MyClient " + url);
++		System.exit(1);
++	}
++
+ }
+diff --git a/src/main/java/client/ClientController.java b/src/main/java/client/ClientController.java
+new file mode 100644
+index 0000000..7c4c7e0
+--- /dev/null
++++ b/src/main/java/client/ClientController.java
+@@ -0,0 +1,600 @@
++package client;
++
++import java.io.BufferedReader;
++import java.io.File;
++import java.io.FileReader;
++import java.io.IOException;
++import java.io.Reader;
++import java.net.MalformedURLException;
++import java.net.URL;
++
++import client.ClientGrid.WorldInfoBundle;
++import javafx.application.Platform;
++import javafx.beans.value.ChangeListener;
++import javafx.beans.value.ObservableValue;
++import javafx.event.ActionEvent;
++import javafx.event.EventHandler;
++import javafx.fxml.FXML;
++import javafx.fxml.FXMLLoader;
++import javafx.scene.Scene;
++import javafx.scene.canvas.Canvas;
++import javafx.scene.control.Button;
++import javafx.scene.control.Label;
++import javafx.scene.control.MenuBar;
++import javafx.scene.control.ScrollPane;
++import javafx.scene.control.Slider;
++import javafx.scene.control.TextArea;
++import javafx.scene.control.TextField;
++import javafx.scene.input.KeyCode;
++import javafx.scene.input.KeyEvent;
++import javafx.scene.layout.AnchorPane;
++import javafx.scene.layout.HBox;
++import javafx.scene.layout.VBox;
++import javafx.stage.FileChooser;
++import javafx.stage.FileChooser.ExtensionFilter;
++import parse.SpecParser;
++import javafx.stage.Popup;
++import javafx.stage.Stage;
++import javafx.stage.Window;
++
++public class ClientController {
++
++	@FXML
++	private AnchorPane anchorPane;
++	@FXML
++	private MenuBar menuBar;
++	@FXML
++	private Button loadCritterButton;
++	@FXML
++	private TextField fpsArea;
++	@FXML
++	private Slider fpsSlider;
++	@FXML
++	private Button stepButton;
++	@FXML
++	private Button startButton;
++	@FXML
++	private Button stopButton;
++	@FXML
++	private TextField timeField;
++	@FXML
++	private TextField critterCount;
++	@FXML
++	private Button zoomOutButton;
++	@FXML
++	private Button zoomInButton;
++	@FXML
++	private ScrollPane scrollPane;
++	@FXML
++	private TextArea infoArea;
++	@FXML
++	private TextArea messages;
++	@FXML
++	private Canvas canvas;
++	@FXML
++	private FileChooser fc;
++	@FXML
++	private Button loginButton;
++	@FXML
++	private TextField levelField;
++	@FXML
++	private TextField passwordField;
++	@FXML
++	private TextField urlField;
++
++	private File curFile; // variable to store a loaded file
++	private ClientGrid grid; // canvas
++	private Client client;
++
++	protected TextArea rowCritter = new TextArea();
++	protected TextArea colCritter = new TextArea();
++	protected TextArea numCritters = new TextArea();
++
++	private int stepsPerSecond;
++
++	private int priorVersion; //a version before this(not necessarily right before)
++	int updateRate; //Rate at which client gets info
++	boolean loggedIn;
++	private static String url;
++
++	/**
++	 * Runs when user presses login button.
++	 * Opens up world window if user is authorized.
++	 */
++	@FXML
++	public void login() {
++		String level = levelField.getText();
++		String password = passwordField.getText();
++		url = urlField.getText();
++		try {
++			client = new Client(new URL(url));
++			if (client.login(level, password)) {
++				((Stage) loginButton.getScene().getWindow()).close();
++				initializeWorld();
++			}
++		} catch (MalformedURLException e) {
++			urlField.clear();
++		} catch (IOException e) {
++			urlField.clear();
++		}
++	}
++
++	/**
++	 * Runs when user presses "new world" button. Creates and displays a new world
++	 * with randomly places rocks
++	 */
++	@FXML
++	public void newWorld() {
++		client.makeWorld(" ");
++		finishWorld();
++	}
++
++	/**
++	 * Enables functionality that requires a world to have been selected. (allows
++	 * user to step, start, zoom, etc.) Sets up a hexagonal grid representation of
++	 * the world.
++	 * 
++	 * @param world
++	 *            the world to display
++	 */
++	private void finishWorld() {
++		loadCritterButton.setDisable(false);
++		startButton.setDisable(false);
++		stopButton.setDisable(false);
++		stepButton.setDisable(false);
++		zoomOutButton.setDisable(false);
++		zoomInButton.setDisable(false);
++		grid = new ClientGrid(client.getWorld(), infoArea);
++		scrollPane.setContent(grid);
++		grid.draw(client.getWorld());
++
++		anchorPane.getScene().setOnKeyPressed(new EventHandler<KeyEvent>() {
++
++			// Steps world once when user presses "s"
++			@Override
++			public void handle(KeyEvent event) {
++				if (event.getCode() == KeyCode.S)
++					stepWorld();
++			}
++
++		});
++
++	}
++
++	/**
++	 * Runs when user presses "load world" button. Opens a popup window that allows
++	 * the user to choose a world file. Once the user presses submit, if it's a
++	 * valid file, this method adds this world to the simulaiton and displays it.
++	 */
++	@FXML
++	public void loadWorld() {
++		Window newWindow = new Stage();
++
++		Button chooseFileButton = new Button();
++		chooseFileButton.setText("Choose file");
++
++		chooseFileButton.setOnAction(new EventHandler<ActionEvent>() {
++			@Override
++			public void handle(ActionEvent e) {
++				handleChooseFile();
++			}
++		});
++
++		Button submitButton = new Button();
++		submitButton.setText("Submit");
++		submitButton.setOnAction(new EventHandler<ActionEvent>() {
++
++			@Override
++			public void handle(ActionEvent e) {
++				if (curFile != null) {
++					try {
++						BufferedReader br = new BufferedReader(new FileReader(curFile));
++
++						String description = "";
++						while (br.ready())
++							description += br.readLine() + "\n";
++
++						client.makeWorld(description);
++						finishWorld();
++						br.close();
++					} catch (IOException ex) {
++						messages.appendText("Bad world file\n");
++					}
++
++					submitButton.getScene().getWindow().hide();
++					curFile = null;
++				} else {
++					messages.appendText("No file chosen\n");
++				}
++			}
++
++		});
++
++		Popup popup = new Popup();
++		popup.getContent().addAll(chooseFileButton);
++
++		popup.sizeToScene();
++		popup.setX(1000);
++		popup.setY(800);
++		popup.show(newWindow);
++
++		VBox layout = new VBox(10);
++		HBox top = new HBox();
++		top.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
++		HBox bottom = new HBox();
++		bottom.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
++		top.getChildren().addAll(chooseFileButton);
++		bottom.getChildren().addAll(submitButton);
++		layout.getChildren().addAll(top, bottom);
++		Scene popupScene = new Scene(layout, 400, 120);
++		((Stage) newWindow).setScene(popupScene);
++		((Stage) newWindow).show();
++	}
++
++	/**
++	 * Allows a user to choose a file from their file explorer.
++	 */
++	public void handleChooseFile() {
++		fc = new FileChooser();
++		fc.getExtensionFilters().add(new ExtensionFilter("Text Files", "*.txt"));
++		curFile = fc.showOpenDialog(anchorPane.getScene().getWindow());
++	}
++
++	/**
++	 * Runs when user hits "load critter" button. Produces a popup that allows the
++	 * user to choose the file describing the critter, the column and row of the
++	 * desired location of the critter and the number of critters. If the user
++	 * specifies a column and row, the program only loads 1 critter in that hex.
++	 * Otherwise, it loads the number of critters specified(default = 1) in random
++	 * hexes. Critters start out facing up.
++	 */
++	@FXML
++	public void loadCritter() {
++		Window newWindow = new Stage();
++
++		Button chooseFileButton = new Button();
++		chooseFileButton.setText("Choose file");
++
++		chooseFileButton.setOnAction(new EventHandler<ActionEvent>() {
++			@Override
++			public void handle(ActionEvent e) {
++				handleChooseFile();
++			}
++		});
++
++		Button submitButton = new Button();
++		submitButton.setText("Submit");
++		submitButton.setOnAction(new EventHandler<ActionEvent>() {
++
++			// Uses info user submitted
++			@Override
++			public void handle(ActionEvent event) {
++				try {
++					if (curFile != null) {
++
++						BufferedReader br = new BufferedReader(new FileReader(curFile));
++
++						char c;
++						String word = "";
++						try {
++							while (!Character.isWhitespace((c = (char) br.read())) && c != 65535) {
++								word += c;
++							}
++							
++						} catch (IOException e) {
++							messages.appendText("Invalid Critter file\n");
++						}
++							
++						String species = br.readLine();
++						SpecParser sp = new SpecParser();
++						Reader r = sp.parseSpecs(br);
++						int[] mem = sp.getAttributes();
++						String program = "";
++						BufferedReader brPro = new BufferedReader(r);
++						while (brPro.ready())
++							program = program + brPro.readLine() + "\n";
++
++						if (!rowCritter.getText().isEmpty() && !colCritter.getText().isEmpty()) {
++
++							int row = Integer.parseInt(rowCritter.getText());
++							int col = Integer.parseInt(colCritter.getText());
++
++							client.addCritter(species, program, mem, row, col, -1);
++							submitButton.getScene().getWindow().hide();
++
++						} else {
++							int num = 1;
++							if (!numCritters.getText().isEmpty()) {
++								num = Integer.parseInt(numCritters.getText());
++							}
++							client.addCritter(species, program, mem, -1, -1, num);
++
++							submitButton.getScene().getWindow().hide();
++						}
++						curFile = null;
++					} else {
++						messages.appendText("No file chosen\n");
++					}
++
++					grid.draw(client.getWorld());
++
++				} catch (IOException e) {
++					messages.appendText("Couldn't find critter file\n");
++				}
++			}
++
++		});
++
++		Popup popup = new Popup();
++		popup.getContent().addAll(chooseFileButton);
++
++		popup.sizeToScene();
++		popup.setX(1000);
++		popup.setY(800);
++		popup.show(newWindow);
++
++		VBox vbox = new VBox(10);
++		HBox top = new HBox(10);
++		HBox inputs = new HBox(10);
++		HBox bottom = new HBox(10);
++		top.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
++		inputs.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
++		bottom.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
++
++		top.getChildren().addAll(chooseFileButton);
++		Label colLabel = new Label("Col: ");
++		Label rowLabel = new Label("Row: ");
++		Label numLabel = new Label("# of critters: ");
++		inputs.getChildren().addAll(colLabel, colCritter, rowLabel, rowCritter, numLabel, numCritters);
++		bottom.getChildren().addAll(submitButton);
++
++		vbox.getChildren().addAll(top, inputs, bottom);
++		Scene popupScene = new Scene(vbox, 400, 200);
++		((Stage) newWindow).setScene(popupScene);
++		((Stage) newWindow).show();
++	}
++
++	/**
++	 * Runs when user presses "close" from "file" menu. Closes the window containing
++	 * the simulation.
++	 */
++	@FXML
++	public void closeWorld() {
++		((Stage) anchorPane.getScene().getWindow()).close();
++	}
++
++	/**
++	 * Runs when user clicks logout(File menu).
++	 * Opens the login screen.
++	 */
++	@FXML
++	public void logout() {
++		((Stage) anchorPane.getScene().getWindow()).close();
++		synchronized (this) {
++			loggedIn = false;
++		}
++		initializeLogin(false);
++	}
++
++	/**
++	 * Runs when user presses "step" or when user presses "s". Advances the world by
++	 * 1 time step and draws the updated world.
++	 */
++	@FXML
++	public void stepWorld() {
++		client.step(1);
++		timeField.clear();
++		WorldInfoBundle world = client.getWorld();
++		timeField.appendText(world.current_timestep + "");
++		critterCount.clear();
++		critterCount.appendText(world.population + "");
++		grid.draw(world);
++	}
++
++	/**
++	 * Stops the simulation from running automatically.
++	 */
++	@FXML
++	public void stopWorld() {
++		client.changeRate(0);
++	}
++
++	/**
++	 * Makes the simulation run automatically. It runs at the number of steps per
++	 * second that the user chose with the scroll bar, but only displays updates at
++	 * a maximum rate of 30 steps per second.
++	 */
++	@FXML
++	public void startWorld() {
++		client.changeRate(stepsPerSecond);
++	}
++
++	/**
++	 * Runs when user hits + button. Zooms into the world.
++	 */
++	public void zoomIn() {
++		grid.rescale(1);
++		grid.draw(client.getWorld());
++	}
++
++	/**
++	 * Runs when user hits - button. Zooms out of world.
++	 */
++	public void zoomOut() {
++		grid.rescale(-1);
++		grid.draw(client.getWorld());
++	}
++
++	/**
++	 * Initializes text fields that only take in numbers. Doesn't allow the user to
++	 * type letters. (ex, rowCritter, colCritter, numCritter)
++	 * 
++	 * @param ta
++	 *            The text field to initialize
++	 */
++	public void initNumTextArea(TextArea ta) {
++		ta.setMaxSize(25, 15);
++
++		ta.textProperty().addListener(new ChangeListener<String>() {
++			@Override
++			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
++				if (!newValue.matches("\\d*")) {
++					ta.setText(newValue.replaceAll("[^\\d]", ""));
++				}
++			}
++		});
++	}
++
++	/**
++	 * Sets the value of steps per second that the world does. Prints this under the
++	 * slider in the GUI.
++	 */
++	void updateFPS(int value) {
++		stepsPerSecond = value;
++		client.changeRate(stepsPerSecond);
++
++		fpsArea.clear();
++		fpsArea.appendText(stepsPerSecond + "");
++	}
++
++	public void initializeWorld() {
++		try {
++			URL r = getClass().getResource("controller.fxml");
++			if (r == null)
++				throw new Exception("No FXML resource found.");
++			Scene scene = new Scene(FXMLLoader.load(r));
++			Stage stage = new Stage();
++			stage.setTitle("Critter World");
++			stage.setScene(scene);
++			stage.sizeToScene();
++			stage.show();
++		} catch (Exception e) {
++			loggedIn = false;
++		}
++	}
++
++	/**
++	 * 
++	 * @param first
++	 *            if this is the first time a login screen is being shown
++	 */
++	public void initializeLogin(boolean first) {
++		if (!first) {
++			try {
++				URL r = getClass().getResource("login.fxml");
++				if (r == null)
++					throw new Exception("No FXML resource found.");
++				Scene scene = new Scene(FXMLLoader.load(r));
++				Stage stage = new Stage();
++				stage.setTitle("Login");
++				stage.setScene(scene);
++				stage.sizeToScene();
++				stage.show();
++
++			} catch (Exception e) {
++				System.out.println(e.getMessage());
++				e.printStackTrace();
++			}
++		}
++
++	}
++
++	/**
++	 * Initializes variables corresponding to user inputs. Disables functionality
++	 * that cannot be used without a world.
++	 */
++	@FXML
++	public void initialize() {
++
++		try {
++			if (url != null)
++				client = new Client(new URL(url));
++			if (loginButton == null) {
++
++				fpsSlider.valueProperty().addListener((obs, oldValue, newValue) -> updateFPS(newValue.intValue()));
++
++				initNumTextArea(rowCritter);
++				initNumTextArea(colCritter);
++				initNumTextArea(numCritters);
++				stepsPerSecond = 1;
++				fpsArea.appendText(stepsPerSecond + "");
++				updateRate = 33;
++				loggedIn = true;
++
++				client.connectMessages(messages);
++
++				// Update display
++				// Advancing time in the background
++
++				Thread updateWorld = new Thread() {
++					public void run() {
++						int time = 1000 / updateRate;
++						while (loggedIn) {
++							WorldInfoBundle worldInfo = client.getWorld(priorVersion);
++
++							if (worldInfo == null) {
++								messages.appendText("No world\n");
++								loadCritterButton.setDisable(true);
++								startButton.setDisable(true);
++								stopButton.setDisable(true);
++								stepButton.setDisable(true);
++								zoomOutButton.setDisable(true);
++								zoomInButton.setDisable(true);
++							} else {
++								if(grid == null) {
++									Platform.runLater(new Runnable() {
++										@Override
++										public void run() {
++											finishWorld();
++										}
++									});
++								}
++
++								// somebody else loaded world
++								if (startButton == null) {
++									loadCritterButton.setDisable(false);
++									startButton.setDisable(false);
++									stopButton.setDisable(false);
++									stepButton.setDisable(false);
++									zoomOutButton.setDisable(false);
++									zoomInButton.setDisable(false);
++								}
++
++								priorVersion = worldInfo.current_version_number;
++
++								// Draws world in applicaiton thread
++								Platform.runLater(new Runnable() {
++									@Override
++									public void run() {
++										grid.draw(worldInfo);
++										timeField.clear();
++										timeField.appendText(worldInfo.current_timestep + "");
++										critterCount.clear();
++										critterCount.appendText(worldInfo.population + "");
++									}
++
++								});
++
++							}
++
++							try {
++								sleep(time);
++							} catch (InterruptedException e) {
++								System.out.println("Problem sleeping");
++							}
++						}
++					}
++
++				};
++
++				updateWorld.start();
++			}
++		} catch (MalformedURLException e) {
++			messages.appendText("Bad url");
++			e.printStackTrace();
++		} catch (IOException e) {
++			messages.appendText("Bad url");
++		}
++	}
++
++}
+diff --git a/src/main/java/client/ClientGrid.java b/src/main/java/client/ClientGrid.java
+new file mode 100644
+index 0000000..e339259
+--- /dev/null
++++ b/src/main/java/client/ClientGrid.java
+@@ -0,0 +1,422 @@
++package client;
++
++import java.io.BufferedReader;
++import java.io.ByteArrayInputStream;
++import java.io.IOException;
++import java.io.InputStreamReader;
++import java.io.Reader;
++import java.io.StringReader;
++import java.util.ArrayList;
++
++import javafx.event.EventHandler;
++import javafx.scene.canvas.Canvas;
++import javafx.scene.canvas.GraphicsContext;
++import javafx.scene.control.TextArea;
++import javafx.scene.input.MouseEvent;
++import javafx.scene.paint.Color;
++import simulator.Critter;
++import simulator.Hex;
++import simulator.Simulator;
++
++public class ClientGrid extends Canvas {
++
++	WorldInfoBundle world;
++	private TextArea infoArea; // Area with info on critters
++	private int ROWS;
++	private int COLUMNS;
++	private int highlightedRow = -1;
++	private int highlightedCol = -1;
++	private static Color[] speciesColors = { Color.RED, Color.YELLOW, Color.GREEN, Color.BLUE, Color.MAGENTA,
++			Color.ANTIQUEWHITE, Color.BURLYWOOD, Color.CORNFLOWERBLUE, Color.BISQUE, Color.NAVAJOWHITE, Color.KHAKI,
++			Color.TOMATO, Color.BLACK, Color.SILVER, Color.HOTPINK, Color.ORANGE, Color.GAINSBORO };
++	// Names of critter species
++	private static ArrayList<String> names = new ArrayList<String>();
++
++	// Size is horizontal length in pixels
++	public static double SIDE_OF_HEX = 80;
++	public static double CRITTER_SIZE = 10;
++	public static double CRITTER_INCR = 10;
++	public static double FOOD_SIZE = 5;
++	public static double FOOD_INCR = 5;
++	public static double ROCK_SIZE = 80;
++	public static double PADDING = 50;
++
++	/**
++	 * Creates a hexagonal grid that displays information from the specified world
++	 * and prints characteristics of a selected critter in infoBox.
++	 * 
++	 * @param sim
++	 *            The world that is displayed
++	 * @param infoBox
++	 *            Place for displaying info about critters.
++	 */
++	public ClientGrid(WorldInfoBundle world, TextArea infoBox) {
++		this.infoArea = infoBox;
++		
++		this.world = world;
++		COLUMNS = world.cols;
++		ROWS = world.rows;
++		// Setting size of canvas with padding
++		this.setWidth(2 * SIDE_OF_HEX + 1.5 * SIDE_OF_HEX * (COLUMNS - 1) + 2 * PADDING);
++
++		int maxRows = 0;
++		while (2 * maxRows < 2 * ROWS - COLUMNS)
++			maxRows++;
++
++		this.setHeight(maxRows * SIDE_OF_HEX * Math.sqrt(3.) + 2 * PADDING);
++		
++		setupEventHandlers();
++	}
++
++	/**
++	 * Rescales the world by either 3/4 or 4/3
++	 * 
++	 * @param i
++	 *            1 for zooming in -1 for zooming out
++	 */
++	public void rescale(int i) {
++		double factor = i == -1 ? 3. / 4. : 4. / 3.;
++		SIDE_OF_HEX *= factor;
++		CRITTER_SIZE *= factor;
++		CRITTER_INCR *= factor;
++		FOOD_SIZE *= factor;
++		FOOD_INCR *= factor;
++		ROCK_SIZE *= factor;
++		PADDING *= factor;
++	}
++
++	/**
++	 * This method is run when a user clicks on the grid. If the user clicked on a
++	 * hex, that hex is highlighted and the information about any critters in it is
++	 * displayed.
++	 */
++	private void setupEventHandlers() {
++		setOnMousePressed(new EventHandler<MouseEvent>() {
++
++			@Override
++			public void handle(MouseEvent e) {
++				if (infoArea == null)
++					System.out.println("info area ia null");
++				infoArea.clear();
++
++				double x = e.getX();
++				double y = e.getY();
++
++				int col = 0;
++				double xcm = PADDING + SIDE_OF_HEX;
++				while (xcm < x) {
++					xcm += 1.5 * SIDE_OF_HEX;
++					col++;
++				}
++				int row = (col / 2) + (col % 2);
++				double ycm = getHeight() - PADDING - Math.sqrt(3.) / 2 * SIDE_OF_HEX;
++				if (col % 2 == 1)
++					ycm = ycm - Math.sqrt(3.) / 2 * SIDE_OF_HEX;
++
++				while (ycm > y) {
++					ycm -= Math.sqrt(3) * SIDE_OF_HEX;
++					row++;
++				}
++
++				double distance = Integer.MAX_VALUE;
++				int finalCol = -1;
++				int finalRow = -1;
++				if (isInBounds(col, row)) {
++					distance = distance(col, row, x, y);
++					finalCol = col;
++					finalRow = row;
++				}
++				if (isInBounds(col - 1, row)) {
++					if (distance(col - 1, row, x, y) < distance) {
++						distance = distance(col - 1, row, x, y);
++						finalCol = col - 1;
++						finalRow = row;
++					}
++				}
++				if (isInBounds(col - 1, row - 1)) {
++					if (distance(col - 1, row - 1, x, y) < distance) {
++						distance = distance(col - 1, row - 1, x, y);
++						finalCol = col - 1;
++						finalRow = row - 1;
++					}
++				}
++				if (isInBounds(col, row - 1)) {
++					if (distance(col, row - 1, x, y) < distance) {
++						distance = distance(col, row - 1, x, y);
++						finalCol = col;
++						finalRow = row - 1;
++					}
++				}
++
++				highlightedCol = finalCol;
++				highlightedRow = finalRow;
++				draw(world);
++
++				printCritterInfo();
++			}
++		});
++	}
++
++	/**
++	 * Determines whether col, row represent a valid hex location
++	 * @param col  column coordinate
++	 * @param row  row coordinate
++	 * @return  true if location is valid
++	 */
++	private boolean isInBounds(int col, int row) {
++		return col < COLUMNS && row < ROWS && 2 * row - col < 2 * ROWS - COLUMNS && 2 * row - col >= 0 && row >= 0
++				&& col >= 0;
++	}
++
++	/**
++	 * Prints information about the species, memory array, program and last executed
++	 * rule of the critter in the hex that was last clicked on.
++	 */
++	public void printCritterInfo() {
++		if (highlightedCol == -1 || highlightedRow == -1)
++			return;
++
++		for (HexInfo h : world.state) {
++			if (h.col == highlightedCol && h.row == highlightedRow) {
++				if (h.type.equals("critter")) {
++					infoArea.appendText("Species: " + h.species_id + "\n");
++					int[] mem = h.mem;
++					infoArea.appendText("Memory: ");
++					for (int i : mem) {
++						infoArea.appendText(" " + i);
++					}
++					infoArea.appendText("\n");
++					if (h.program != null) {
++						infoArea.appendText("Program: " + h.program);
++						infoArea.appendText("Last rule: " + h.recently_executed_rule);
++					}
++				}
++			}
++		}
++
++	}
++
++	/**
++	 * Converts the index of the last executed rule to a string description
++	 * @param h HexInfo that has all of the critter's information
++	 * @return String representing last executed rule
++	 */
++	private String getLastRule(HexInfo h) {
++		int rIndex = h.recently_executed_rule;
++		int i = 1;
++		Reader r = new StringReader(h.program);
++		BufferedReader br = new BufferedReader(r);
++		boolean slash = false;
++		boolean comment = false;
++		int c;
++		String rule = "";
++		
++		try {
++			while (i < rIndex) {
++				c = br.read();
++				if (c == ';' && !comment)
++					i++;
++	
++				if (c == '/')
++					if (slash) {
++						slash = false;
++						comment = true;
++					} else {
++						slash = true;
++					}
++			}
++	
++			c = br.read();
++			while (c != ';') {
++				rule += c;
++				c = br.read();
++			}
++		}
++		catch(IOException e){
++			return "No rule has occured";
++		}
++		return rule;
++	}
++
++	/**
++	 * Returns the distance between center of hex with coordinates (col, row) and
++	 * the position on the canvas(in pixels) (x,y)
++	 * 
++	 * @param col
++	 *            the column of the desired hex
++	 * @param row
++	 *            the row of the desired hex
++	 * @param x
++	 *            the x-coordinate of position
++	 * @param y
++	 *            the y-coordinate of position
++	 * @return distance in pixels
++	 */
++	public double distance(double col, double row, double x, double y) {
++		double x0 = PADDING + SIDE_OF_HEX;
++		double y0 = getHeight() - PADDING - Math.sqrt(3.) / 2 * SIDE_OF_HEX;
++		double x2 = x0;
++		double y2 = y0 - Math.sqrt(3.) * SIDE_OF_HEX;
++		double x1 = x0 + 3 * SIDE_OF_HEX / 2;
++		double y1 = y0 + Math.sqrt(3.) * SIDE_OF_HEX / 2;
++
++		double xHex = col * (x1 - x0) + row * (x2 - x0) + x0;
++		double yHex = col * (y1 - y0) + row * (y2 - y0) + y0;
++
++		return Math.hypot(xHex - x, yHex - y);
++	}
++
++	/**
++	 * Draws the grid and all of the critters, food and rocks in the world.
++	 */
++	public void draw(WorldInfoBundle newWorld) {
++		world = newWorld;
++		
++		GraphicsContext g = getGraphicsContext2D();
++		g.setFill(Color.ANTIQUEWHITE);
++		g.fillRect(0, 0, getWidth(), getHeight());
++		
++		double x0 = PADDING + SIDE_OF_HEX;
++		double y0 = getHeight() - PADDING - Math.sqrt(3.) / 2 * SIDE_OF_HEX;
++		double x2 = x0;
++		double y2 = y0 - Math.sqrt(3.) * SIDE_OF_HEX;
++		double x1 = x0 + 3 * SIDE_OF_HEX / 2;
++		double y1 = y0 + Math.sqrt(3.) * SIDE_OF_HEX / 2;
++
++		for(HexInfo h : world.state) {
++			double xHex = h.col * (x1 - x0) + h.row * (x2 - x0) + x0;
++			double yHex = h.col * (y1 - y0) + h.row * (y2 - y0) + y0;
++		
++			if (h.col == highlightedCol && h.row == highlightedRow)
++				drawHex(h, xHex, yHex, true);
++			else
++				drawHex(h, xHex, yHex, false);
++		}
++
++	}
++
++	/**
++	 * Draws a hexagon representing (c, r) in the world and draws anything found in
++	 * that hex.
++	 * 
++	 * @param c
++	 *            the column coordinate of hex
++	 * @param r
++	 *            the row coordinate of hex
++	 * @param cx
++	 *            x-coordinate of hex's center
++	 * @param cy
++	 *            y-coordinate of hex's center
++	 * @param fill
++	 *            whether or not to fill in the background of the hexagon true if
++	 *            you want to highlight it.
++	 */
++	public void drawHex(HexInfo h, double cx, double cy, boolean fill) {
++		GraphicsContext g = getGraphicsContext2D();
++
++		g.setStroke(Color.BLACK);
++
++		double s = SIDE_OF_HEX;
++		double rt3 = Math.sqrt(3.);
++
++		if (fill) {
++			g.setFill(Color.AQUA);
++			g.fillPolygon(new double[] { cx - s / 2., cx + (s / 2.), cx + s, cx + (s / 2.), cx - (s / 2.), cx - s },
++					new double[] { cy + rt3 * (s / 2.), cy + rt3 * (s / 2.), cy, cy - rt3 * (s / 2.),
++							cy - rt3 * (s / 2.), cy },
++					6);
++		}
++
++		// Draws sides
++		g.strokeLine(cx - s / 2., cy + rt3 * (s / 2.), cx + (s / 2.), cy + rt3 * (s / 2.));
++		g.strokeLine(cx + (s / 2.), cy + rt3 * (s / 2.), cx + s, cy);
++		g.strokeLine(cx + s, cy, cx + (s / 2.), cy - rt3 * (s / 2.));
++		g.strokeLine(cx + (s / 2.), cy - rt3 * (s / 2.), cx - (s / 2.), cy - rt3 * (s / 2.));
++		g.strokeLine(cx - (s / 2.), cy - rt3 * (s / 2.), cx - s, cy);
++		g.strokeLine(cx - s, cy, cx - (s / 2.), cy + rt3 * (s / 2.));
++
++		// Draws object
++		if (h.type.equals("rock")) {
++			g.setFill(Color.DARKGREY);
++			g.fillOval(cx - ROCK_SIZE / 2, cy - ROCK_SIZE / 2, ROCK_SIZE, ROCK_SIZE);
++		} else if (h.type.equals("food")) {
++			g.setFill(Color.ORANGE);
++			double size = FOOD_SIZE + (FOOD_INCR * (h.value / 100));
++			size = (int) Math.min(size, SIDE_OF_HEX * (Math.sqrt(3.)));
++			g.fillOval(cx - size / 2, cy - size / 2, size, size);
++		} else if (h.type.equals("critter")) {
++			String species = h.species_id;
++			int i = names.indexOf(species);
++			if (i == -1) {
++				names.add(species);
++				i = names.size() - 1;
++			}
++			g.setFill(speciesColors[i % 17]);
++			drawCritter(h, cx, cy, g);
++		}
++
++	}
++
++	/**
++	 * Draws the critter in the hex centered at (cx, cy). The tip of the triangle is
++	 * pointed in the direction in which the critter is facing.
++	 * 
++	 * @param c
++	 *            the critter to be drawn
++	 * @param cx
++	 *            the x-coordinate of the center of the critter's hex
++	 * @param cy
++	 *            the y-coordinate of the center of the critters's hex
++	 * @param g
++	 *            graphics context which will be used to draw
++	 */
++	private void drawCritter(HexInfo c, double cx, double cy, GraphicsContext g) {
++		double size = CRITTER_SIZE + (CRITTER_INCR * c.mem[3]);
++		size = (int) Math.min(size, SIDE_OF_HEX * (Math.sqrt(3.)));
++
++		int dir = c.direction;
++		double theta = Math.PI / 2.; // Angle btwn +x axis and ray to tip of
++										// triangle
++		while (dir > 0) {
++			theta -= Math.PI / 3.;
++			dir--;
++		}
++		double p1x = cx + size * Math.cos(theta); // x,y of tip of triangle
++		double p1y = cy - size * Math.sin(theta);
++
++		double p2x = cx + size * Math.cos(theta + 5. / 6. * Math.PI);
++		double p2y = cy - size * Math.sin(theta + 5. / 6. * Math.PI);
++
++		double p3x = cx + size * Math.cos(theta + 7. / 6. * Math.PI);
++		double p3y = cy - size * Math.sin(theta + 7. / 6. * Math.PI);
++
++		g.fillPolygon(new double[] { p1x, p2x, p3x }, new double[] { p1y, p2y, p3y }, 3);
++	}
++
++	
++	public class HexInfo {
++		int row;
++		int col;
++		String type;
++		int value; // for food
++		int id; // for critter
++		String species_id;
++		String program;
++		int direction;
++		int[] mem;
++		int recently_executed_rule;
++	}
++
++	public class WorldInfoBundle {
++		int current_timestep;
++		int current_version_number;
++		int update_since;
++		int rate;
++		String name;
++		int population;
++		int rows;
++		int cols;
++		Integer[] dead_critters;
++		HexInfo[] state;
++	}
++}
+diff --git a/src/main/java/client/Main.java b/src/main/java/client/Main.java
+new file mode 100644
+index 0000000..9068d45
+--- /dev/null
++++ b/src/main/java/client/Main.java
+@@ -0,0 +1,36 @@
++package client;
++
++import java.net.URL;
++import javafx.application.Application;
++import javafx.fxml.FXMLLoader;
++import javafx.scene.Scene;
++import javafx.stage.Stage;
++
++/**
++ * Creates a window that a user can log into to view 
++ * a simulation of the critter world given user inputs.
++ */
++public class Main extends Application {
++
++   public static void main(String[] args) {
++      launch(args);
++   }
++
++   @Override
++   public void start(Stage stage) {
++		try {
++			URL r = getClass().getResource("login.fxml");
++	        if (r == null) throw new Exception("No FXML resource found.");
++	        Scene scene = new Scene(FXMLLoader.load(r));
++	        stage.setTitle("Login");
++	        stage.setScene(scene);
++	        stage.sizeToScene();
++	        stage.show();
++	        
++		} catch (Exception e) {
++			System.out.println(e.getMessage());
++			e.printStackTrace();
++		}
++   }
++
++}
+\ No newline at end of file
+diff --git a/src/main/java/client/controller.fxml b/src/main/java/client/controller.fxml
+new file mode 100644
+index 0000000..ed228d3
+--- /dev/null
++++ b/src/main/java/client/controller.fxml
+@@ -0,0 +1,94 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<?import javafx.geometry.Insets?>
++<?import javafx.scene.control.Button?>
++<?import javafx.scene.control.Label?>
++<?import javafx.scene.control.Menu?>
++<?import javafx.scene.control.MenuBar?>
++<?import javafx.scene.control.MenuItem?>
++<?import javafx.scene.control.ScrollPane?>
++<?import javafx.scene.control.Slider?>
++<?import javafx.scene.control.TextArea?>
++<?import javafx.scene.control.TextField?>
++<?import javafx.scene.layout.AnchorPane?>
++<?import javafx.scene.layout.BorderPane?>
++<?import javafx.scene.layout.HBox?>
++<?import javafx.scene.layout.VBox?>
++
++<AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="880.0" prefWidth="1277.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
++   <children>
++      <BorderPane prefHeight="742.0" prefWidth="176.0" />
++      <VBox alignment="TOP_CENTER" layoutY="74.0" prefHeight="576.0" prefWidth="158.0" spacing="10.0" AnchorPane.bottomAnchor="254.0" AnchorPane.leftAnchor="6.0" AnchorPane.topAnchor="50.0">
++         <children>
++            <Button fx:id="loadCritterButton" mnemonicParsing="false" onAction="#loadCritter" text="Load Critter" />
++            <HBox prefHeight="33.0" prefWidth="158.0" spacing="3.0">
++               <children>
++                  <Button fx:id="startButton" mnemonicParsing="false" onAction="#startWorld" text="Start" />
++                  <Button fx:id="stopButton" mnemonicParsing="false" onAction="#stopWorld" text="Stop" />
++                  <Button fx:id="stepButton" mnemonicParsing="false" onAction="#stepWorld" text="Step" />
++               </children>
++            </HBox>
++            <VBox prefHeight="64.0" prefWidth="158.0" spacing="20.0">
++               <children>
++                  <HBox prefHeight="100.0" prefWidth="200.0">
++                     <children>
++                        <Label prefHeight="32.0" prefWidth="88.0" text="Time Step:   " />
++                        <TextField fx:id="timeField" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="78.0" />
++                     </children>
++                     <padding>
++                        <Insets top="10.0" />
++                     </padding>
++                  </HBox>
++                  <HBox prefHeight="100.0" prefWidth="200.0" spacing="25.0">
++                     <children>
++                        <Label prefHeight="32.0" prefWidth="88.0" text="Critters Alive:" />
++                        <TextField fx:id="critterCount" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="45.0" />
++                     </children>
++                     <padding>
++                        <Insets bottom="10.0" />
++                     </padding>
++                  </HBox>
++               </children>
++            </VBox>
++            <Label text="Frames per Second:" />
++            <Slider fx:id="fpsSlider" majorTickUnit="59.0" max="60.0" min="1.0" minorTickCount="60" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
++            <HBox prefHeight="31.0" prefWidth="158.0" spacing="35.0">
++               <children>
++                  <Label fx:id="fpsLabel" prefHeight="30.0" prefWidth="85.0" text="FPS: " />
++                  <TextField fx:id="fpsArea" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="38.0">
++                     <opaqueInsets>
++                        <Insets />
++                     </opaqueInsets>
++                  </TextField>
++               </children>
++            </HBox>
++            <HBox prefHeight="49.0" prefWidth="158.0" spacing="31.0">
++               <children>
++                  <Button fx:id="zoomOutButton" mnemonicParsing="false" onAction="#zoomOut" text="-" />
++                  <Label text="Zoom">
++                     <padding>
++                        <Insets top="5.0" />
++                     </padding>
++                  </Label>
++                  <Button fx:id="zoomInButton" mnemonicParsing="false" onAction="#zoomIn" text="+" />
++               </children>
++            </HBox>
++         </children>
++      </VBox>
++      <ScrollPane fx:id="scrollPane" layoutX="160.0" layoutY="50.0" prefHeight="671.0" prefWidth="826.0" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="170.0" AnchorPane.topAnchor="50.0" />
++      <MenuBar fx:id="menuBar" layoutX="253.0" layoutY="-2.0" prefHeight="38.0" prefWidth="1277.0" AnchorPane.bottomAnchor="842.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
++        <menus>
++          <Menu mnemonicParsing="false" text="File">
++            <items>
++                  <MenuItem mnemonicParsing="false" onAction="#newWorld" text="New World" />
++                  <MenuItem mnemonicParsing="false" onAction="#loadWorld" text="Load World" />
++                  <MenuItem mnemonicParsing="false" onAction="#logout" text="Log Out" />
++                  <MenuItem fx:id="closeButton" mnemonicParsing="false" onAction="#closeWorld" text="Exit" />
++            </items>
++          </Menu>
++        </menus>
++      </MenuBar>
++      <TextArea fx:id="infoArea" editable="false" layoutX="1010.0" layoutY="52.0" prefHeight="671.0" prefWidth="247.0" AnchorPane.bottomAnchor="160.0" AnchorPane.leftAnchor="1010.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="50.0" />
++      <TextArea fx:id="messages" editable="false" layoutX="397.0" layoutY="732.0" prefHeight="148.0" prefWidth="144.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="740.0" />
++   </children>
++</AnchorPane>
+diff --git a/src/main/java/client/login.fxml b/src/main/java/client/login.fxml
+new file mode 100644
+index 0000000..d5c61a5
+--- /dev/null
++++ b/src/main/java/client/login.fxml
+@@ -0,0 +1,45 @@
++<?xml version="1.0" encoding="UTF-8"?>
++
++<?import javafx.scene.control.Button?>
++<?import javafx.scene.control.Label?>
++<?import javafx.scene.control.TextField?>
++<?import javafx.scene.layout.AnchorPane?>
++<?import javafx.scene.layout.HBox?>
++<?import javafx.scene.layout.VBox?>
++<?import javafx.scene.text.Font?>
++
++<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="295.0" prefWidth="431.0" xmlns="http://javafx.com/javafx/9.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.ClientController">
++   <children>
++      <VBox prefHeight="295.0" prefWidth="431.0">
++         <children>
++            <HBox alignment="CENTER" prefHeight="91.0" prefWidth="431.0">
++               <children>
++                  <Label fx:id="welcomeLabel" text="Welcome" textAlignment="CENTER">
++                     <font>
++                        <Font name="System Bold Italic" size="24.0" />
++                     </font></Label>
++               </children>
++            </HBox>
++            <HBox alignment="CENTER" prefHeight="72.0" prefWidth="431.0" spacing="50.0">
++               <children>
++                  <Label fx:id="levelLabel" text="Level:" />
++                  <TextField fx:id="levelField" />
++               </children>
++            </HBox>
++            <HBox alignment="CENTER" layoutX="10.0" layoutY="101.0" prefHeight="72.0" prefWidth="431.0" spacing="29.0">
++               <children>
++                  <Label fx:id="passwordLabel" text="Password:" />
++                  <TextField fx:id="passwordField" />
++               </children>
++            </HBox>
++            <HBox alignment="CENTER" prefHeight="71.0" prefWidth="431.0">
++               <children>
++                  <Button fx:id="loginButton" mnemonicParsing="false" onAction="#login" text="Log In" />
++               	  <Label fx:id="urlLabel" text="Server Url:" />
++                  <TextField fx:id="urlField" />
++               </children>
++            </HBox>
++         </children>
++      </VBox>
++   </children>
++</AnchorPane>
+diff --git a/src/main/java/interpret/CritterRunner.java b/src/main/java/interpret/CritterRunner.java
+index 2e0000d..2eb4d79 100644
+--- a/src/main/java/interpret/CritterRunner.java
++++ b/src/main/java/interpret/CritterRunner.java
+@@ -4,9 +4,7 @@ import java.util.ArrayList;
+ import java.util.Random;
+ 
+ import ast.Action;
+-import ast.Condition;
+ import ast.ConditionNode;
+-import ast.Expr;
+ import ast.Expression;
+ import ast.FactorNode;
+ import ast.MemNode;
+@@ -20,7 +18,7 @@ import simulator.Critter;
+ 
+ public class CritterRunner implements Interpreter {
+ 	Critter critter;
+-
++	
+ 	public CritterRunner(Critter c) {
+ 		critter = c;
+ 	}
+@@ -29,205 +27,286 @@ public class CritterRunner implements Interpreter {
+ 	public Outcome interpret() {
+ 		Program p = critter.getProgram();
+ 		ArrayList<Rule> rules = p.getRules();
++		Outcome result = new LogOutcome();
++		result.setAction(false);
+ 		
+ 		critter.getMem()[5] = 1;
+-		int action = 0; //meaning no action.
++		
+ 		Rule r = null;
+-		while(critter.getMem()[5] < 1000 && action == 0) {
+-			boolean trueCond = false; //a condition has not evaluated to true.
+-			int count = 0; //which rule
+-			while(!trueCond && count < rules.size()) {
++		while (critter.getMem()[5] < 1000 && !result.isAction()) {
++			boolean trueCond = false; // a condition has not evaluated to true.
++			int count = 0; // which rule
++			while (!trueCond && count < rules.size()) {
+ 				r = rules.get(count);
+ 				
+-				if(getBool(r.getCond().critAccept(this))) {
++				if (getBool(r.getCond().critAccept(this).value())) {
+ 					trueCond = true;
+-					for(Update u: r.getUpdates()) {
++					for (Update u : r.getUpdates()) {
+ 						u.critAccept(this);
+ 					}
+ 					
+-					action = r.getComm().critAccept(this);
++					result = r.getComm().critAccept(this);
+ 				}
+ 				count++;
+ 				
+ 			}
+ 			
+-			if(count == rules.size()) {
+-				action = 1;
++			if (count == rules.size()) {
++				result.setAction(true);
+ 				critter.waitAction();
+ 			}
+ 			
+ 			critter.getMem()[5]++;
+ 		}
+ 		
+-		if(action == 1 || action == -1)
++		if (result.isAction())
+ 			critter.setLastRule(r);
+-			
+-		critter.getMem()[5] = 1;
+-		
+-		if(action == -1)
+-			return new MateOutcome(true);
+ 		
+-		return new MateOutcome(false);
++		critter.getMem()[5] = 1;
++
++		return result;
+ 	}
+ 	
+-	
+-
+ 	@Override
+-	public boolean eval(ConditionNode c) {
++	public Outcome eval(ConditionNode c) {
++		Outcome o = new LogOutcome();
++		boolean trueCond = false;
+ 		TokenType t = c.getTokenType();
+-		int left = c.left().critAccept(this);
+-		int right = c.right().critAccept(this);
+-		
+-		
+-		switch(t) {
+-			case OR:
+-				return  getBool(left) || getBool(right);
+-			case AND:
+-				return getBool(left) && getBool(right);
+-			case LT:
+-				return left < right;
+-			case LE:
+-				return left <= right;
+-			case GE:
+-				return left >= right;
+-			case GT:
+-				return left > right;
+-			case NE:
+-				return left != right;
+-			case EQ:
+-				return left == right;
+-			default:
+-				throw new AssertionError();
+-
++		int left = c.left().critAccept(this).value();
++		int right = c.right().critAccept(this).value();
++		
++		switch (t) {
++		case OR:
++			trueCond = getBool(left) || getBool(right);
++			break;
++		case AND:
++			trueCond = getBool(left) && getBool(right);
++			break;
++		case LT:
++			trueCond = left < right;
++			break;
++		case LE:
++			trueCond = left <= right;
++			break;
++		case GE:
++			trueCond = left >= right;
++			break;
++		case GT:
++			trueCond = left > right;
++			break;
++		case NE:
++			trueCond = left != right;
++			break;
++		case EQ:
++			trueCond = left == right;
++			break;
++		default:
++			throw new AssertionError();
++			
+ 		}
++		
++		o.setValue(trueCond ? 1 : 0);
++		return o;
+ 	}
+ 	
+-	//1 represents true and 0 represents false
++	/**
++	 * Requires that i either equals 0 or 1.
++	 * @param i an integer representing the boolean
++	 * @return true if i = 1 and false if i = 0
++	 */
+ 	private boolean getBool(int i) {
+ 		return i == 1;
+ 	}
+-
++	
+ 	@Override
+-	public int eval(Expression e) {
++	public Outcome eval(Expression e) {
++		Outcome o = new LogOutcome();
+ 		TokenType t = e.getTokenType();
+-		int left = e.left().critAccept(this);
+-		int right = e.right().critAccept(this);
+-		
+-		
+-		switch(t) {
+-			case PLUS:
+-				return  left + right;
+-			case MINUS:
+-				return left - right;
+-			case MUL:
+-				return left * right;
+-			case DIV:
+-				if(right == 0)
+-					return 0;
+-				return left / right;
+-			case MOD:
+-				if(right == 0)
+-					return 0;
+-				return left % right;
+-			default:
+-				throw new AssertionError();
+-
++		int left = e.left().critAccept(this).value();
++		int right = e.right().critAccept(this).value();
++		
++		switch (t) {
++		case PLUS:
++			o.setValue(left + right);
++			break;
++		case MINUS:
++			o.setValue(left - right);
++			break;
++		case MUL:
++			o.setValue(left * right);
++			break;
++		case DIV:
++			if (right == 0)
++				o.setValue(0);
++			o.setValue(left / right);
++			break;
++		case MOD:
++			if (right == 0)
++				o.setValue(0);
++			o.setValue(left % right);
++			break;
++		default:
++			throw new AssertionError();
++			
+ 		}
++		
++		return o;
+ 	}
+ 	
+-	public int eval(FactorNode f) {
+-		//Should be - (factor)
++	@Override
++	public Outcome eval(FactorNode f) {
++		//Only run in case of - (factor)
++		Outcome o = new LogOutcome();
+ 		
+-		int right = f.right().critAccept(this);
+-		return -1 * right;
++		int right = f.right().critAccept(this).value();
++		o.setValue(-1 * right);
++		return o;
+ 	}
+ 	
+-	public int eval(SensorNode s) {
++	@Override
++	public Outcome eval(SensorNode s) {
+ 		TokenType type = s.getTokenType();
+-		if(type == TokenType.SMELL)
+-			return 0;
+-		
+-		int right = s.right().critAccept(this);
+-		switch(type) {
+-			case AHEAD:
+-				return critter.ahead(right, critter.getDir());
+-			case NEARBY:
+-				return critter.nearby(right);
+-			case RANDOM:
+-				Random r = new Random();
+-				return r.nextInt(right);
+-			default:
+-				throw new AssertionError();
++		Outcome o = new LogOutcome();
++		
++		if (type == TokenType.SMELL) {
++			o.setValue(critter.smell());
++			return o;
++		}
++		
++		int right = s.right().critAccept(this).value();
++		switch (type) {
++		case AHEAD:
++			o.setValue(critter.ahead(right, critter.getDir()));
++			return o;
++		case NEARBY:
++			o.setValue(critter.nearby(right));
++			return o;
++		case RANDOM:
++			Random r = new Random();
++			o.setValue(r.nextInt(right));
++			return o;
++		default:
++			throw new AssertionError();
+ 		}
+ 		
+ 	}
+ 	
+-	public int eval(MemNode m) {
+-		int right = m.right().critAccept(this);
+-		if(right < 0 || right > critter.getMem().length)
+-			return 0;
+-		return critter.getMem()[right];
++	@Override
++	public Outcome eval(MemNode m) {
++		Outcome o = new LogOutcome();
++		
++		int right = m.right().critAccept(this).value();
++		if (right < 0 || right > critter.getMem().length)
++			o.setValue(0);
++		
++		o.setValue(critter.getMem()[right]);
++		return o;
+ 	}
+ 	
+-	public int eval(NumNode n) {
+-		return n.getNum();
++	@Override
++	public Outcome eval(NumNode n) {
++		Outcome o = new LogOutcome();
++		o.setValue(n.getNum());
++		return o;
+ 	}
+ 	
+-	//returns 0.
+-	public int eval(Update u) {
+-		int index = u.left().right().critAccept(this); //Want expression in memnode
+-		int right = u.right().critAccept(this); //Value that should be assigned to mem[index]
++	@Override
++	public Outcome eval(Update u) {
++		int index = u.left().right().critAccept(this).value(); // Want expression in
++														// memnode
++		int right = u.right().critAccept(this).value(); // Value that should be assigned
++												// to mem[index]
+ 		
+-		if(index == 7)
+-			if(right > 0 && right < 99)
++		if (index == 7)
++			if (right > 0 && right < 99)
+ 				critter.getMem()[7] = right;
+-		
+-		if(index  > 7 && index < critter.getMem().length)
++			
++		if (index > 7 && index < critter.getMem().length)
+ 			critter.getMem()[index] = right;
+ 		
+-		return 0;
++		return new LogOutcome();
+ 	}
+ 	
+-	//returns -1 is a is mate. Otherwise returns 1.
+-	public int eval(Action a) {
++	@Override
++	public Outcome eval(Action a) {
+ 		TokenType t = a.getTokenType();
++		int c, r;
++		LogOutcome lo = new LogOutcome();
+ 		
+-		switch(t) {
+-			case WAIT:
+-				critter.waitAction();
+-				break;
+-			case FORWARD:
+-				critter.forward();
+-				break;
+-			case BACKWARD:
+-				critter.backward();
+-				break;
+-			case LEFT:
+-				critter.turn(-1);
+-				break;
+-			case RIGHT:
+-				critter.turn(1);
+-				break;
+-			case EAT:
+-				critter.eat();
+-				break;
+-			case ATTACK:
+-				critter.attack();
+-				break;
+-			case GROW:
+-				critter.grow();
+-				break;
+-			case BUD:
+-				critter.bud();
+-				break;
+-			case MATE:
+-				return -1;
+-			case TAG:
+-				critter.tag(a.right().critAccept(this));
+-			default: //should be serve
+-				critter.serve(a.right().critAccept(this));
++		switch (t) {
++		case WAIT:
++			critter.waitAction();
++			lo = new LogOutcome();
++			break;
++		case FORWARD:
++			if (critter.forward()) {
++				c = critter.colAtDir(critter.getDir());
++				r = critter.rowAtDir(critter.getDir());
++				lo = new LogOutcome(c, r);
++			}
++			break;
++		case BACKWARD:
++			if (critter.backward()) {
++				c = critter.colAtDir((critter.getDir() + 3) % 6);
++				r = critter.rowAtDir((critter.getDir() + 3) % 6);
++				lo = new LogOutcome(c, r);
++			}
++			break;
++		case LEFT:
++			critter.turn(-1);
++			lo = new LogOutcome();
++			break;
++		case RIGHT:
++			critter.turn(1);
++			lo = new LogOutcome();
++			break;
++		case EAT:
++			if (critter.eat()) {
++				c = critter.colAtDir(critter.getDir());
++				r = critter.rowAtDir(critter.getDir());
++				lo = new LogOutcome(c, r); 
++			}
++			break;
++		case ATTACK:
++			if (critter.attack()) {
++				c = critter.colAtDir(critter.getDir());
++				r = critter.rowAtDir(critter.getDir());
++				lo = new LogOutcome(c, r); 
++			}
++			break;
++		case GROW:
++			critter.grow();
++			lo = new LogOutcome();
++			break;
++		case BUD:
++			if (critter.bud()) {
++				c = critter.colAtDir((critter.getDir() + 3) % 6);
++				r = critter.rowAtDir((critter.getDir() + 3) % 6);
++				lo = new LogOutcome(c, r);
++			}
++			break;
++		case MATE:
++			c = critter.colAtDir((critter.getDir() + 3) % 6);
++			r = critter.rowAtDir((critter.getDir() + 3) % 6);
++			lo = new LogOutcome(c, r, true);
++			break;
++		case TAG:
++			if (critter.tag(a.right().critAccept(this).value())) {
++				c = critter.colAtDir(critter.getDir());
++				r = critter.rowAtDir(critter.getDir());
++				lo = new LogOutcome(c, r); 
++			}
++			break;
++		default: // Action is serve
++			if (critter.serve(a.right().critAccept(this).value())) {
++				c = critter.colAtDir(critter.getDir());
++				r = critter.rowAtDir(critter.getDir());
++				lo = new LogOutcome(c, r);
++			}
++			break;
+ 		}
+ 		
+-		return 1;
++		lo.setAction(true);
++		return lo;
+ 	}
+ }
+diff --git a/src/main/java/interpret/Interpreter.java b/src/main/java/interpret/Interpreter.java
+index 153d7a8..ecbf8db 100644
+--- a/src/main/java/interpret/Interpreter.java
++++ b/src/main/java/interpret/Interpreter.java
+@@ -32,7 +32,7 @@ public interface Interpreter {
+      * @param c
+      * @return a boolean that results from evaluating c.
+      */
+-    boolean eval(ConditionNode c);
++    public Outcome eval(ConditionNode c);
+ 
+     /**
+      * Evaluate given expression
+@@ -40,7 +40,7 @@ public interface Interpreter {
+      * 		Expression to evaluate
+      * @return Integer result of evaluating e
+      */
+-    public int eval(Expression e);
++    public Outcome eval(Expression e);
+ 	
+     /**
+      * Evaluate given factor node
+@@ -48,7 +48,7 @@ public interface Interpreter {
+      * 		Factor node to evaluate
+      * @return Integer result of evaluating f
+      */
+-	public int eval(FactorNode f);
++	public Outcome eval(FactorNode f);
+ 	
+ 	/**
+      * Evaluate given mem node
+@@ -56,7 +56,7 @@ public interface Interpreter {
+      * 		Mem node to evaluate
+      * @return Integer result of evaluating m
+      */
+-	public int eval(MemNode m);
++	public Outcome eval(MemNode m);
+ 	
+ 	/**
+      * Evaluate given num node
+@@ -64,7 +64,7 @@ public interface Interpreter {
+      * 		Num node to evaluate
+      * @return Integer result of evaluating f
+      */
+-	public int eval(NumNode f);
++	public Outcome eval(NumNode f);
+ 	
+ 	/**
+      * Evaluate given sensor node
+@@ -72,20 +72,20 @@ public interface Interpreter {
+      * 		Sensor node to evaluate
+      * @return Integer result of evaluating s
+      */
+-	public int eval(SensorNode s);
++	public Outcome eval(SensorNode s);
+ 	
+ 	/**
+ 	 * Evaluate given update
+ 	 * @param u
+ 	 * 		Update to evaluate
+-	 * @return 0
++	 * @return LogOutcome of update (no other changed hex)
+ 	 */
+-	public int eval(Update u);
++	public Outcome eval(Update u);
+ 	/**
+      * Evaluate given action
+      * @param a
+      * 		Action to evaluate
+-     * @return -1 if mate action or 1 otherwise
++     * @return LogOutcome of the action
+      */
+-	public int eval(Action a);
++	public Outcome eval(Action a);
+ }
+diff --git a/src/main/java/interpret/LogOutcome.java b/src/main/java/interpret/LogOutcome.java
+new file mode 100644
+index 0000000..61538e6
+--- /dev/null
++++ b/src/main/java/interpret/LogOutcome.java
+@@ -0,0 +1,122 @@
++package interpret;
++
++public class LogOutcome implements Outcome {
++	
++	// Col and row of changed hex
++	// Maximum one hex other than the current critter's could have changed
++	// 		after a single action
++	private int col;
++	private int row;
++	boolean mate;
++	boolean action;
++	int value;
++	
++	/**
++	 * Constructs LogOutcome denoting no changed hex
++	 */
++	public LogOutcome() {
++		col = -1;
++		row = -1;
++		mate = false;
++	}
++	
++	/**
++	 * Constructs LogOutcome denoting changed hex
++	 * @param c
++	 * 		Column of hex changed
++	 * @param r
++	 * 		Row of hex changed
++	 */
++	public LogOutcome(int c, int r) {
++		col = c;
++		row = r;
++		mate = false;
++	}
++	
++	/**
++	 * Constructs a LogOutcome with changed hex and mate outcome
++	 * @param c
++	 * 		Column of changed hex
++	 * @param r
++	 * 		Row of changed hex
++	 * @param mate
++	 * 		Whether critter action was mate
++	 */
++	public LogOutcome(int c, int r, boolean mate) {
++		col = c;
++		row = r;
++		this.mate = mate;
++		action = mate;
++	}
++	
++	/**
++	 * Returns whether a hex other than the critter's
++	 * original hex was changed
++	 * @return
++	 * 		Whether hex was changed
++	 */
++	public boolean changed() {
++		return col != -1 && row != -1;
++	}
++	
++	/**
++	 * Returns column index of hex that changed
++	 * @return
++	 * 		column index of hex that changed.
++	 * 		If no additional hex has changed it return -1;
++	 */
++	public int getCol() {
++		return col;
++	}
++	
++	/**
++	 * Returns row index of hex that changed
++	 * @return
++	 * 		row index of hex that changed.
++	 * 		If no additional hex has changed it return -1;
++	 */
++	public int getRow() {
++		return row;
++	}
++	
++	/**
++	 * Returns whether outcome was mate
++	 * @return Whether outcome was mate
++	 */
++	public boolean isMate() {
++		return mate;
++	}
++	
++	/**
++	 * Returns whether outcome was an action
++	 * @return Whether outcome was an action
++	 */
++	public boolean isAction() {
++		return action;
++	}
++	
++	/**
++	 * Returns integer value of result.
++	 * Requires that isAction() is false (value is meaningless for action outcome)
++	 */
++	public int value() {
++		return value;
++	}
++
++	/**
++	 * Sets the value of this outcome. 
++	 */
++	public void setValue(int i) {
++		value = i;
++	}
++
++	/**
++	 * Makes outcome either an action or not an action
++	 * @param action 
++	 * 			true, if outcome represents an action,
++	 * 			false, if outcome is an update
++	 */
++	public void setAction(boolean action) {
++		this.action = action;
++	}
++}
+\ No newline at end of file
+diff --git a/src/main/java/interpret/MateOutcome.java b/src/main/java/interpret/MateOutcome.java
+deleted file mode 100644
+index 14a5e09..0000000
+--- a/src/main/java/interpret/MateOutcome.java
++++ /dev/null
+@@ -1,13 +0,0 @@
+-package interpret;
+-
+-public class MateOutcome implements Outcome{
+-	boolean mate;
+-	
+-	public MateOutcome(boolean mate) {
+-		this.mate = mate;
+-	}
+-	
+-	public boolean isMate() {
+-		return mate;
+-	}
+-}
+diff --git a/src/main/java/interpret/Outcome.java b/src/main/java/interpret/Outcome.java
+index c68840a..34eab06 100644
+--- a/src/main/java/interpret/Outcome.java
++++ b/src/main/java/interpret/Outcome.java
+@@ -1,7 +1,5 @@
+ package interpret;
+ 
+-import ast.Rule;
+-
+ /**
+  * An example interface for representing an outcome of interpreting
+  * a critter program.
+@@ -13,4 +11,49 @@ public interface Outcome {
+ 	 * @return Whether outcome is a MateOutcome
+ 	 */
+ 	public boolean isMate();
++	
++	/**
++	 * Returns whether any additional hexes could
++	 * have changed based on action.
++	 * @return true if another hex was affected
++	 */
++	public boolean changed();
++	
++	/**
++	 * Returns whether this outcome involved an action.
++	 * @return true if this represents and action. False otherwise.
++	 */
++	public boolean isAction();
++	
++	/**
++	 * Return the value of the outcome.  
++	 * Used to evaluate conditions.  Will be 0 for all actions.
++	 * @return value of outcome
++	 */
++	public int value();
++	
++	/**
++	 * Changes the value of this outcome.
++	 * @param i the new value
++	 */
++	public void setValue(int i);
++	
++	/**
++	 * Sets this class to either an action or not an action
++	 * @param action  true, if this class should represent and action
++	 *       false, if this class is an update or integer.
++	 */
++	public void setAction(boolean action);
++	
++	/**
++	 * Returns column of hex that changed
++	 * @return -1 if no additional hex was changed
++	 */
++	public int getCol();
++		
++	/**
++	 * Returns row of hex that changed
++	 * @return -1 if no additional hex was changed
++	 */
++	public int getRow();
+ }
+diff --git a/src/main/java/mvc/controller.fxml b/src/main/java/mvc/controller.fxml
+index b6cf75e..689ef68 100644
+--- a/src/main/java/mvc/controller.fxml
++++ b/src/main/java/mvc/controller.fxml
+@@ -34,7 +34,7 @@
+                   <HBox prefHeight="100.0" prefWidth="200.0" spacing="25.0">
+                      <children>
+                         <Label prefHeight="32.0" prefWidth="88.0" text="Critters Alive:" />
+-                        <TextField fx:id="critterCount" alignment="BASELINE_CENTER" prefHeight="31.0" prefWidth="45.0" />
++                        <TextField fx:id="critterCount" alignment="BASELINE_CENTER" editable="false" prefHeight="31.0" prefWidth="45.0" />
+                      </children>
+                      <padding>
+                         <Insets bottom="10.0" />
+diff --git a/src/main/java/server/Server.java b/src/main/java/server/Server.java
+index 9720b6a..35edcaa 100644
+--- a/src/main/java/server/Server.java
++++ b/src/main/java/server/Server.java
+@@ -1,69 +1,104 @@
+ package server;
+ 
+ import static spark.Spark.get;
+-
+ import static spark.Spark.port;
+ import static spark.Spark.post;
++import static spark.Spark.delete;
+ 
+ import java.util.ArrayList;
+-import java.util.Set;
++import java.util.concurrent.locks.ReentrantReadWriteLock;
+ 
+ import com.google.gson.Gson;
+ 
+-import Server.Message;
+-import Server.SetMessage;
++import ast.Program;
++import ast.Rule;
++import client.ClientGrid.HexInfo;
++import simulator.Critter;
++import simulator.Hex;
++import simulator.ServerSimulator;
+ 
+ public class Server {
+-	// get("/world", (request, response) -> "yo");
+-	
+-	private ArrayList<Integer> readers;
+-	private ArrayList<Integer> writers;
+-	private ArrayList<Integer> admins;
+-	
++
++	ServerSimulator sim;
++
++	int versionOld; // the version number before current world was created
++	Integer[][] log; //log of last version number when each hex was changed
++	ArrayList<Critter> deadCritters;
++
++	private ArrayList<String> users;
++
+ 	private static final String READ_PASSWORD = "bilbo";
+ 	private static final String WRITE_PASSWORD = "frodo";
+ 	private static final String ADMIN_PASSWORD = "gandalf";
+-	
+-	private int nextSessionID;
+-	
++
++	private static final String READER_PREFIX = "0";
++	private static final String WRITER_PREFIX = "1";
++	private static final String ADMIN_PREFIX = "2";
++
++	private int nextSuffix;
++	private int nextCritterId;
++
++	private float rate;
++
++	//used to deal with race conditions with simulator info
++	ReentrantReadWriteLock lock;
++
++	/**
++	 * Creates a new server
++	 */
+ 	public Server() {
+-		readers = new ArrayList<Integer>();
+-		writers = new ArrayList<Integer>();
+-		admins = new ArrayList<Integer>();
+-		nextSessionID = 101010; // Just a 6-digit number
++		users = new ArrayList<String>();
++		nextSuffix = 101010; // 6-digit suffix
++		nextCritterId = 1010;
++		versionOld = 0;
++		deadCritters = new ArrayList<Critter>();
++		rate = 0;
++		log = new Integer[0][0];
++
++		lock = new ReentrantReadWriteLock();
+ 	}
++
+ 	
++	/**
++	 * Handles commands that the user sends
++	 */
+ 	public void run() {
+-		
++
+ 		port(8080);
+-		
++
++		Gson gson = new Gson();
++
++		//trying to log in
+ 		post("/login", (request, response) -> {
+ 			response.header("Content-Type", "application/json");
+-			// Getting data from the post body
++
+ 			String json = request.body();
+-			loginBundle login = gson.fromJson(json, loginBundle.class);
+-			
++			LoginBundle login = gson.fromJson(json, LoginBundle.class);
++
+ 			switch (login.level()) {
+ 			case "read":
+ 				if (login.password().equals(READ_PASSWORD)) {
+-					readers.add(nextSessionID);
+-					return sessionIDBundle(nextSessionID++);
++					int id = Integer.valueOf(READER_PREFIX + nextSuffix++);
++					users.add(id + "");
++					return new SessionIDBundle(id);
+ 				}
+ 				response.status(401);
+ 				response.body("Unauthorized");
+ 				break;
+ 			case "write":
+ 				if (login.password().equals(WRITE_PASSWORD)) {
+-					writers.add(nextSessionID);
+-					return sessionIDBundle(nextSessionID++);
++					int id = Integer.valueOf(WRITER_PREFIX + nextSuffix++);
++					users.add(id + "");
++					return new SessionIDBundle(id);
+ 				}
+ 				response.status(401);
+ 				response.body("Unauthorized");
+ 				break;
+ 			case "admin":
+ 				if (login.password().equals(ADMIN_PASSWORD)) {
+-					admins.add(nextSessionID);
+-					return sessionIDBundle(nextSessionID++);
++					int id = Integer.valueOf(ADMIN_PREFIX + nextSuffix++);
++					users.add(id + "");
++					return new SessionIDBundle(id);
+ 				}
+ 				response.status(401);
+ 				response.body("Unauthorized");
+@@ -72,28 +107,671 @@ public class Server {
+ 				response.status(401);
+ 				response.body("Unauthorized");
+ 			}
++			return "Wrong level or password";
++		}, gson::toJson);
++
++		//trying to get ids of all critters
++		get("/critters", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			
++			if(!users.contains(request.queryParams("session_id"))) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++			int clientID = Integer.parseInt(request.queryParams("session_id"));
++
++			ArrayList<CritterInfo> result = new ArrayList<CritterInfo>();
++
++			lock.readLock().lock();
++			for (Critter c : sim.getCritters()) {
++				result.add(new CritterInfo(c, clientID));
++			}
++			lock.readLock().unlock();
++
++			return new CritterInfoBundle(result);
++		}, gson::toJson);
++
++		//Makes critters
++		post("/critters", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			String seshIdStr = request.queryParams("session_id");
++			if (!users.contains(seshIdStr) || seshIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++
++			if(sim == null) {
++				response.status(403);
++				return "Create a world before critters";
++			}
++			
++			int seshId = Integer.parseInt(seshIdStr);
++
++			String json = request.body();
++			MakeCritterBundle newCritter = gson.fromJson(json, MakeCritterBundle.class);
++			String speciesId = newCritter.speciesId();
++			String program = newCritter.program();
++			int[] mem = newCritter.mem();
++			LocationBundle[] positions = newCritter.positions();
++			int num = newCritter.num();
++
++			if (positions == null) {
++				int[] ids = new int[num];
++				for (int i = 0; i < num; i++) {
++					int critterId = nextCritterId++;
++					lock.writeLock().lock();
++					boolean added = sim.loadCritter(program, speciesId, mem, critterId, seshId);
++					lock.writeLock().unlock();
++					if (added)
++						ids[i] = critterId;
++					else
++						ids[i] = -1;
++				}
++
++				response.status(201);
++				response.body("OK");
++				return new CrittersResponseBundle(speciesId, ids);
++			} else {
++				
++				int[] ids = new int[positions.length];
++				for (int i = 0; i < positions.length; i++) {
++					int critterId = nextCritterId++;
++					int col = positions[i].col();
++					int row = positions[i].row();
++					lock.writeLock().lock();
++					boolean added = sim.loadCritter(program, col, row, 0, speciesId, mem, critterId, seshId);
++					lock.writeLock().unlock();
++					if (added)
++						ids[i] = critterId;
++					else
++						ids[i] = -1;
++				}
++
++				response.status(201);
++				response.body("OK");
++				return new CrittersResponseBundle(speciesId, ids);
++			}
++		}, gson::toJson);
++
++		//gets info about a specific critter
++		get("/critter/:id", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			int id = Integer.parseInt(request.params(":id"));
++			
++			if(!users.contains(request.queryParams("session_id"))) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++			int sessionId = Integer.parseInt(request.queryParams("session_id"));
++
++			if(sim == null) {
++				response.status(403);
++				return "Need a world";
++			}
+ 			
++			lock.readLock().lock();
++			for (Critter c : sim.getCritters()) {
++				if (c.critterId() == id)
++					return new CritterInfo(c, sessionId);
++			}
++			lock.readLock().unlock();
++
++			response.status(404);
++			return "Could not find specified critter";
+ 		}, gson::toJson);
+-	}
++
++		//removes a critter form a simulation without having it die.
++		delete("/critter/:id", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			int id = Integer.parseInt(request.params(":id"));
++			String sessionIdStr = request.queryParams("session_id");
++			if (!users.contains(sessionIdStr) || sessionIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++			int sessionId = Integer.parseInt(sessionIdStr);
++
++			if(sim == null) {
++				response.status(403);
++				return "Need a world";
++			}
++			
++			lock.writeLock().lock();
++			for (int i = sim.getCritters().size() - 1; i > -1; i--) {
++				Critter c = sim.getCritters().get(i);
++				if (c.critterId() == id) {
++					if (c.viewableBy(sessionId)) {
++						sim.die(c);
++						deadCritters.remove(c);
++					}
++				}
++			}
++			lock.writeLock().lock();
++
++			response.status(204);
++			return "";
++		}, gson::toJson);
++
++		//Makes a world
++		post("/world", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			String json = request.body();
++			MakeWorldBundle newWorld = gson.fromJson(json, MakeWorldBundle.class);
++
++			String seshIdStr = request.queryParams("session_id");
++			if (!users.contains(seshIdStr) ||seshIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++
++			if (sim != null) {
++				versionOld = sim.version();
++				lock.readLock().lock();
++				for (Critter c : sim.getCritters()) {
++					deadCritters.add(c);
++				}
++				lock.readLock().unlock();
++			}
++
++			lock.writeLock().lock();
++			try {
++				if (newWorld.description().equals(" "))
++					sim = new ServerSimulator(deadCritters, versionOld);
++				else
++					sim = new ServerSimulator(newWorld.description(), deadCritters, versionOld);
++			}catch(IllegalArgumentException e) {
++				response.status(406);
++				return "Incorrect world defintion";
++			}
++			
++			lock.writeLock().unlock();
++
++			if (log.length == 0) {
++				log = new Integer[sim.getWorld().length][sim.getWorld()[0].length];
++			}
++			if (sim.getWorld().length > log.length) {
++				log = new Integer[sim.getWorld().length][log[0].length];
++			}
++			if (sim.getWorld()[0].length > log[0].length) {
++				log = new Integer[log.length][sim.getWorld()[0].length];
++			}
++
++			for (int i = 0; i < log.length; i++) {
++				for (int j = 0; j < log[0].length; j++) {
++					lock.readLock().lock();
++					log[i][j] = sim.version();
++					lock.readLock().unlock();
++				}
++			}
++
++			response.status(201);
++			response.body("OK");
++			return "";
++		}, gson::toJson);
++
++		get("/world", (request, response) -> {
++
++			response.header("Content-Type", "application/json");
++			String json = request.body();
++			if(!users.contains(request.queryParams("session_id"))) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++			String seshIdStr = request.queryParams("session_id");
++			String update_since = request.queryParams("update_since");
++			int u;
++			if (update_since == null) {
++				u = 0;
++			} else {
++				u = Integer.parseInt(update_since);
++			}
++			
++			if(sim == null) {
++				response.status(404);
++				return "No world yet.";
++			}
++
++			int from_r;
++			int to_r;
++			int from_c;
++			int to_c;
++
++			String from_row = request.queryParams("from_row");
++
++			if (from_row == null) {
++				lock.readLock().lock();
++
++				from_r = 0;
++				to_r = sim.getWorld()[0].length;
++				from_c = 0;
++				to_c = sim.getWorld().length;
++
++				lock.readLock().unlock();
++			} else {
++				from_r = Integer.parseInt(from_row);
++				to_r = Integer.parseInt("to_row");
++				from_c = Integer.parseInt("from_col");
++				to_c = Integer.parseInt("to_col");
++			}
++
++			lock.readLock().lock();
++			ArrayList<Critter> d = sim.getDeadCritters();
++			Integer[] dead = new Integer[d.size()];
++			for (int i = 0; i < dead.length; i++) {
++				dead[i] = new Integer(d.get(i).critterId());
++			}
++			WorldInfoBundle w = new WorldInfoBundle(sim.getTimeStep(), sim.version(), u, rate, sim.getName(),
++					sim.getCritters().size(), sim.getWorld().length, sim.getWorld()[0].length, dead);
++
++			int maxRows = 0;
++			while (2 * maxRows < 2 * sim.getWorld()[0].length - sim.getWorld().length)
++				maxRows++;
++
++			for (int col = Math.max(0, from_c); col < Math.min(sim.getWorld().length, to_c); col++) {
++				int tempRows = maxRows;
++				if (col % 2 == 1) {
++					tempRows--;
++				}
++				int startRow = Math.max((col / 2) + (col % 2), from_r);
++
++				for (int row = 0; row < Math.min(tempRows, to_r); row++) {
++					HexInfo h = new HexInfo(col, row + startRow, sim.getWorld()[col][row + startRow],
++							Integer.parseInt(seshIdStr));
++					w.addHexInfo(h);
++				}
++
++			}
++
++			lock.readLock().unlock();
++
++			return w;
++		}, gson::toJson);
++
++		//Creates either a rock of a piece of food.
++		post("/world/create_entity", (request, response) -> {
++
++			response.header("Content-Type", "application/json");
++			String seshIdStr = request.queryParams("session_id");
++			if ( !users.contains(seshIdStr)|| seshIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++
++			String json = request.body();
++			MakeEntityBundle entity = gson.fromJson(json, MakeEntityBundle.class);
++			boolean added = false;
++			if (entity.type().equals("Rock")) {
++				lock.writeLock().lock();
++				added = sim.addRock(entity.col(), entity.row());
++				lock.writeLock().unlock();
++			} else if (entity.type().equals("Food")) {
++				lock.writeLock().lock();
++				added = sim.addFood(entity.col(), entity.row(), entity.amount());
++				lock.writeLock().lock();
++			} else {
++				response.status(406);
++				return "Could not create entity";
++			}
++			if (added) {
++				response.status(201);
++				response.body("OK");
++				return ("");
++			} else {
++				response.status(406);
++				response.body("Not Acceptable");
++				return "hex is either invalid or occupied";
++			}
++
++		}, gson::toJson);
++		
++		//steps the world
++		post("/step", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			String json = request.body();
++			StepBundle step = gson.fromJson(json, StepBundle.class);
++
++			String seshIdStr = request.queryParams("session_id");
++			if (!users.contains(seshIdStr) || seshIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++
++			if (rate != 0) {
++				response.status(406);
++				response.body("Not Acceptable");
++				return "Cannot step while world is runnning";
++			}
++
++			int numSteps;
++			if (step.count() == 0)
++				numSteps = 0;
++			else
++				numSteps = step.count();
++
++			if(sim == null) {
++				response.status(404);
++				return "No world yet.";
++			}
++			
++			lock.writeLock().lock();
++			sim.advanceTime(numSteps, log);
++			lock.writeLock().unlock();
++
++			response.status(200);
++			response.body("OK");
++			return "OK";
++		}, gson::toJson);
++
++		//csets the rate of the simulation
++		post("/run", (request, response) -> {
++			response.header("Content-Type", "application/json");
++			String json = request.body();
++			RunBundle running = gson.fromJson(json, RunBundle.class);
++
++			String seshIdStr = request.queryParams("session_id");
++			if (!users.contains(seshIdStr) || seshIdStr.substring(0, 1).equals("0")) {
++				response.status(401);
++				response.body("Unauthorized");
++				return "Do not have access to this";
++			}
++
++			float newSpeed = running.rate();
++			if (newSpeed < 0) {
++				response.status(406);
++				response.body("Not Acceptable");
++				return "Rate cannot be negative";
++			}
++			
++			synchronized(this){
++				if (newSpeed == 0) {
++					rate = 0;
++					response.status(200);
++					response.body("OK");
++					return "OK";
++				}
++			}
++
++			// If newSpeed is greater than 0
++			synchronized(this) {
++				if (rate > 0)
++					rate = newSpeed;
++				else {
++					rate = newSpeed;
++					Thread advanceTime = new Thread() {
++						public void run() {
++							while (rate > 0) {
++								int time = (int) (1000 / rate);
++								lock.writeLock().lock();
++								sim.advanceTime(1, log);
++								lock.writeLock().unlock();
+ 	
+-	private class loginBundle {
++								try {
++									sleep(time);
++								} catch (InterruptedException e) {
++									System.out.println("Problem sleeping");
++								}
++							}
++						}
++					};
++	
++					advanceTime.start();
++				}
++			}
++
++			return "";
++		}, gson::toJson);
++
++	}
++
++	// Request for POST /login
++	private class LoginBundle {
+ 		private String level;
+ 		private String password;
+-		
++
+ 		public String level() {
+ 			return level;
+ 		}
+-		
++
+ 		public String password() {
+ 			return password;
+ 		}
+ 	}
+-	
+-	private class sessionIDBundle {
+-		int id;
+-		
+-		public sessionIDBundle(int id) {
++
++	// Response to POST /login
++	private class SessionIDBundle {
++		private int id;
++
++		public SessionIDBundle(int id) {
+ 			this.id = id;
+ 		}
+ 	}
++
++	// Info for one critter
++	private class CritterInfo {
++		private int id;
++		private String species_id;
++		String program;
++		int row, col, dir;
++		int[] mem;
++		int recently_executed_rule;
++
++		public CritterInfo(Critter c, int sessionId) {
++			id = c.critterId();
++			species_id = c.getSpecies();
++			row = c.row();
++			col = c.col();
++			dir = c.getDir();
++			mem = c.getMem();
++			if (c.viewableBy(sessionId)) { // can see if admin
++				program = c.getProgram().toString();
++				recently_executed_rule = c.indexOf(c.getLastRule());
++			} else {
++				program = null;
++				recently_executed_rule = -1;
++			}
++		}
++	}
++
++	// Response to GET /critters
++	private class CritterInfoBundle {
++		private ArrayList<CritterInfo> critters;
++
++		public CritterInfoBundle(ArrayList<CritterInfo> critters) {
++			this.critters = critters;
++		}
++	}
++
++	//part of request of POST /critters
++	private class LocationBundle {
++		private int row;
++		private int col;
++
++		public int col() {
++			return col;
++		}
++
++		public int row() {
++			return row;
++		}
++	}
++
++	//request of POST /critters
++	private class MakeCritterBundle {
++		private String speciesId;
++		private String program;
++		private int[] mem;
++		private LocationBundle[] positions;
++		private int num;
++
++		public String speciesId() {
++			return speciesId;
++		}
++
++		public int num() {
++			return num;
++		}
++
++		public LocationBundle[] positions() {
++			return positions;
++		}
++
++		public int[] mem() {
++			return mem;
++		}
++
++		public String program() {
++			return program;
++		}
++
++	}
++
++	//response to POST /critters
++	private class CrittersResponseBundle {
++		private String species_id;
++		private int[] ids;
++
++		public CrittersResponseBundle(String species_id, int[] ids) {
++			this.species_id = species_id;
++			this.ids = ids;
++		}
++	}
++
++	//part of request of GET /world
++	private class WorldInfoBundle {
++		private int current_timestep;
++		private int current_version_number;
++		private int update_since;
++		private double rate;
++		private String name;
++		private int population;
++		private int rows;
++		private int cols;
++		private Integer[] dead_critters;
++		private ArrayList<HexInfo> state;
++
++		public WorldInfoBundle(int timestep, int version, int updateSince, double rate, String name, int pop, int cols,
++				int rows, Integer[] dead_critters) {
++			this.current_timestep = timestep;
++			this.current_version_number = version;
++			this.update_since = updateSince;
++			this.rate = rate;
++			this.name = name;
++			this.population = pop;
++			this.rows = rows;
++			this.cols = cols;
++			this.dead_critters = dead_critters;
++			state = new ArrayList<HexInfo>();
++		}
++
++		public void addHexInfo(HexInfo h) {
++			state.add(h);
++		}
++	}
++
++	//request of POST /world
++	private class MakeWorldBundle {
++		private String description;
++
++		public String description() {
++			return description;
++		}
++	}
++	
++	//request of POST /world/create_entity
++	private class MakeEntityBundle {
++		private int col;
++		private int row;
++		private String type; // either "food" or "rock"
++		private int amount;
++
++		private int col() {
++			return col;
++		}
++
++		private int row() {
++			return row;
++		}
++
++		private String type() {
++			return type;
++		}
++
++		private int amount() {
++			return amount;
++		}
++	}
++
++	//request of POST /step
++	private class StepBundle {
++		private int count;
++
++		public int count() {
++			return count;
++		}
++	}
++
++	//request of POST /run
++	private class RunBundle {
++		private float rate;
++
++		public float rate() {
++			return rate;
++		}
++	}
++
++	//part of request of GET /world
++	private class HexInfo {
++		int row;
++		int col;
++		String type;
++		int value; // for food
++		int id; // for critter
++		String species_id;
++		String program;
++		int direction;
++		int[] mem;
++		int recently_executed_rule;
++
++		public HexInfo(int col, int row, Hex h, int sessionId) {
++			this.col = col;
++			this.row = row;
++
++			if (h.isEmpty())
++				type = "nothing";
++
++			if (h.isRock())
++				type = "rock";
++
++			if (h.isFood()) {
++				type = "food";
++				value = h.getFood();
++			}
++
++			if (h.isCritter()) {
++				type = "critter";
++				Critter c = h.getCritter();
++				id = c.critterId();
++				species_id = c.getSpecies();
++
++				direction = c.getDir();
++				mem = c.getMem();
++				if (c.viewableBy(sessionId)) { // can see if admin
++					program = c.getProgram().toString();
++					recently_executed_rule = c.indexOf(c.getLastRule());
++				} else {
++					program = null;
++					recently_executed_rule = -1;
++				}
++			}
++
++		}
++	}
+ }
+diff --git a/src/main/java/server/ServerRunner.java b/src/main/java/server/ServerRunner.java
+new file mode 100644
+index 0000000..44d70ce
+--- /dev/null
++++ b/src/main/java/server/ServerRunner.java
+@@ -0,0 +1,11 @@
++package server;
++
++/**
++ * Runs the server representing the critter world.
++ */
++public class ServerRunner {
++    public static void main(String[] args) {
++		Server server = new Server();
++		server.run();
++    }
++}
+\ No newline at end of file
+diff --git a/src/main/java/simulator/Critter.java b/src/main/java/simulator/Critter.java
+index 2760f24..db101cd 100644
+--- a/src/main/java/simulator/Critter.java
++++ b/src/main/java/simulator/Critter.java
+@@ -1,5 +1,7 @@
+ package simulator;
+ 
++import java.util.ArrayList;
++import java.util.PriorityQueue;
+ import java.util.Random;
+ 
+ import ast.Program;
+@@ -15,29 +17,31 @@ public class Critter {
+ 	int row;
+ 	int[] mem;
+ 	int dir;
+-	
++
+ 	SimulatorImpl sim;
+ 	Rule lastRule = null;
+-	
++
++	int critterId;
++	int creatorId;
++
+ 	/**
+-	 * Constructs a Critter with a program AST {@code p} at specified location
+-	 * and direction, attributes, and species
++	 * Constructs a Critter with a program AST {@code p} at specified location and
++	 * direction, attributes, and species
+ 	 * 
+ 	 * @param p
+-	 *        Program AST head node
++	 *            Program AST head node
+ 	 * @param s
+-	 *        Species of critter
++	 *            Species of critter
+ 	 * @param c
+-	 *        Column of critter
++	 *            Column of critter
+ 	 * @param r
+-	 *        Row of critter
++	 *            Row of critter
+ 	 * @param mem
+-	 *        Attributes of critter
++	 *            Attributes of critter
+ 	 * @param dir
+-	 *        Direction critter is facing
++	 *            Direction critter is facing
+ 	 */
+-	public Critter(Program p, String s, int c, int r, int[] mem, int dir,
+-			SimulatorImpl sim) {
++	public Critter(Program p, String s, int c, int r, int[] mem, int dir, SimulatorImpl sim) {
+ 		program = p;
+ 		species = s;
+ 		col = c;
+@@ -46,7 +50,20 @@ public class Critter {
+ 		this.dir = dir; // Has to be less than 6
+ 		this.sim = sim;
+ 	}
+-	
++
++	public void setIds(int critId, int createId) {
++		critterId = critId;
++		creatorId = createId;
++	}
++
++	public int critterId() {
++		return critterId;
++	}
++
++	public int creatorID() {
++		return creatorId;
++	}
++
+ 	/**
+ 	 * Executes rules until an action or until max rules is reached
+ 	 * 
+@@ -56,18 +73,18 @@ public class Critter {
+ 		Interpreter runner = new CritterRunner(this);
+ 		return runner.interpret();
+ 	}
+-	
++
+ 	/**
+-	 * May not be needed, but in case more attributes are added than the
+-	 * original MIN_MEMORY size of 8, resizes the mem array
++	 * May not be needed, but in case more attributes are added than the original
++	 * MIN_MEMORY size of 8, resizes the mem array
+ 	 * 
+ 	 * @param size
+-	 *        Size of new array
++	 *            Size of new array
+ 	 */
+ 	public void resizeArray(int size) {
+ 		System.arraycopy(mem, 0, new int[size], 0, mem.length);
+ 	}
+-	
++
+ 	/**
+ 	 * Returns the head of the critter's AST
+ 	 * 
+@@ -76,7 +93,7 @@ public class Critter {
+ 	public Program getProgram() {
+ 		return program;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns species of critter
+ 	 * 
+@@ -85,7 +102,7 @@ public class Critter {
+ 	public String getSpecies() {
+ 		return species;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns the array of attributes
+ 	 * 
+@@ -94,7 +111,7 @@ public class Critter {
+ 	public int[] getMem() {
+ 		return mem;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns the last rule executed
+ 	 * 
+@@ -103,17 +120,17 @@ public class Critter {
+ 	public Rule getLastRule() {
+ 		return lastRule;
+ 	}
+-	
++
+ 	/**
+ 	 * Sets the last rule to {@code r}
+ 	 * 
+ 	 * @param r
+-	 *        Rule to set as last rule
++	 *            Rule to set as last rule
+ 	 */
+ 	public void setLastRule(Rule r) {
+ 		lastRule = r;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns direction the critter is facing
+ 	 * 
+@@ -122,7 +139,7 @@ public class Critter {
+ 	public int getDir() {
+ 		return dir;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns appearance of critter in the form SSTTPPD
+ 	 * 
+@@ -131,27 +148,27 @@ public class Critter {
+ 	public int appearence() {
+ 		return mem[3] * 100000 + mem[6] * 1000 + mem[7] * 10 + dir;
+ 	}
+-	
++
+ 	// returns 0 if this hex is not in bounds.
+ 	/**
+ 	 * Returns what is {@code dist} units ahead of the critter
+ 	 * 
+ 	 * @param dist
+-	 *        Units to look ahead
++	 *            Units to look ahead
+ 	 * @param dir
+-	 *        Direction the critter is facing. {@code dir} should equal this.dir
+-	 *        This design is used for easy reusability in nearby method
+-	 * @return 0 if out of bounds -1 if is a rock -X - 1 if is food == X
+-	 *         appearance of critter if is a critter
++	 *            Direction the critter is facing. {@code dir} should equal this.dir
++	 *            This design is used for easy reusability in nearby method
++	 * @return 0 if out of bounds -1 if is a rock -X - 1 if is food == X appearance
++	 *         of critter if is a critter
+ 	 */
+ 	public int ahead(int dist, int dir) {
+ 		if (dist < 0)
+ 			dist = 0;
+-		
++
+ 		Hex h;
+ 		int newRow = row;
+ 		int newCol = col;
+-		
++
+ 		switch (dir) {
+ 		case 0:
+ 			newRow = row + dist;
+@@ -173,12 +190,12 @@ public class Critter {
+ 		default: // case 5
+ 			newCol = col - dist;
+ 		}
+-		
++
+ 		if (!sim.isInBounds(newCol, newRow))
+ 			return 0;
+-		
++
+ 		h = sim.getHex(newCol, newRow);
+-		
++
+ 		if (h.isRock())
+ 			return -1;
+ 		if (h.isFood())
+@@ -188,26 +205,73 @@ public class Critter {
+ 		else
+ 			return 0;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns what is 1 unit away from the critter in direction {@code dir}
+ 	 * 
+ 	 * @param dir
+-	 *        Direction to look
+-	 * @return 0 if out of bounds -1 if is a rock -X - 1 if is food == X
+-	 *         appearance of critter if is a critter
++	 *            Direction to look
++	 * @return 0 if out of bounds -1 if is a rock -X - 1 if is food == X appearance
++	 *         of critter if is a critter
+ 	 */
+ 	public int nearby(int dir) {
+ 		return ahead(1, dir);
+ 	}
+-	
++
++	public int smell() {
++		PriorityQueue<HexNode> frontier = new PriorityQueue<HexNode>();
++		HexNode root = new HexNode(col, row, dir, 0, null);
++		frontier.add(root);
++
++		while (!frontier.isEmpty()) {
++			HexNode n = frontier.poll();
++			if (n.dist() == 10) // max smell distance
++				return 1000000;
++
++			HexNode node1 = new HexNode(n.col(), n.row(), (n.dir() + 1) % 6, n.dist() + 1, n);
++			HexNode node2 = new HexNode(n.col(), n.row(), n.dir() == 0 ? 5 : n.dir() - 1, n.dist() + 1, n);
++			HexNode node3 = n.forward();
++
++			ArrayList<HexNode> edges = new ArrayList<HexNode>();
++			edges.add(node1);
++			edges.add(node2);
++			if (sim.isInBounds(node3.col(), node3.row())) {
++				if (sim.world[node3.col()][node3.row()].isFood()) {
++					// Have found closest food
++					HexNode current = n;
++					while (!(current.col() == col && current.row() == row)) {
++						current = current.parent();
++					}
++					return n.dist() * 1000 + current.dir();
++				}
++				edges.add(node3);
++			}
++
++			for (HexNode edge : edges) {
++				if (frontier.contains(edge)) {
++					frontier.remove(edge);
++					if (n.dist() + 1 < edge.dist()) {
++						edge.setDist(n.dist() + 1);
++						edge.setParent(n);
++					}
++					frontier.add(edge);
++				} else {
++					frontier.add(edge);
++				}
++			}
++
++		}
++
++		return 1000000;
++	}
++
+ 	// Action methods
+-	
++
+ 	/**
+ 	 * Helper method: Moves critter to hex in a given direction
+ 	 * 
+ 	 * @param dir
+-	 *        Direction to move
++	 *            Direction to move
+ 	 * @return Hex in direction {@code dir} or null if out of bounds
+ 	 */
+ 	public Hex moveToDir(int dir) {
+@@ -240,12 +304,12 @@ public class Critter {
+ 		}
+ 		return null;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns adjacent hex in direction {@code dir}
+ 	 * 
+ 	 * @param dir
+-	 *        Direction of hex in relation to critter
++	 *            Direction of hex in relation to critter
+ 	 * @return Hex in given direction
+ 	 */
+ 	public Hex hexAtDir(int dir) {
+@@ -278,12 +342,60 @@ public class Critter {
+ 		}
+ 		return null; // maybe change
+ 	}
+-	
++
++	/**
++	 * Returns column of hex in direction {@code dir}
++	 * 
++	 * @param dir
++	 *            Direction of critter
++	 * @return Column of hex in direction {@code dir}
++	 */
++	public int colAtDir(int dir) {
++		switch (dir) {
++		case 0:
++			return col;
++		case 1:
++			return col + 1;
++		case 2:
++			return col + 1;
++		case 3:
++			return col;
++		case 4:
++			return col - 1;
++		default:
++			return col - 1;
++		}
++	}
++
++	/**
++	 * Returns row of hex in direction {@code dir}
++	 * 
++	 * @param dir
++	 *            Direction of critter
++	 * @return Row of hex in direction {@code dir}
++	 */
++	public int rowAtDir(int dir) {
++		switch (dir) {
++		case 0:
++			return row + 1;
++		case 1:
++			return row + 1;
++		case 2:
++			return row;
++		case 3:
++			return row - 1;
++		case 4:
++			return row - 1;
++		default:
++			return row;
++		}
++	}
++
+ 	/**
+ 	 * Uses {@code n} energy and returns whether critter died (kills it too)
+ 	 * 
+ 	 * @param n
+-	 *        Energy to decrease
++	 *            Energy to decrease
+ 	 * @return True if died, false if still alive
+ 	 */
+ 	public boolean decEnergy(int n) {
+@@ -292,10 +404,10 @@ public class Critter {
+ 			sim.die(this);
+ 			return true;
+ 		}
+-		
++
+ 		return false;
+ 	}
+-	
++
+ 	/**
+ 	 * Does nothing and gains energy from sun
+ 	 */
+@@ -304,74 +416,72 @@ public class Critter {
+ 		if (mem[4] > mem[3] * sim.constants.get("ENERGY_PER_SIZE"))
+ 			mem[4] = mem[3] * sim.constants.get("ENERGY_PER_SIZE").intValue();
+ 	}
+-	
++
+ 	/**
+ 	 * Moves critter forward one step if possible
+ 	 */
+-	public void forward() {
++	public boolean forward() {
+ 		if (decEnergy(sim.constants.get("MOVE_COST").intValue() * mem[3]))
+-			return;
+-		
++			return false;
++
+ 		if (nearby(dir) == 0) {
+ 			sim.getWorld()[col][row] = new Hex();
+ 			Hex h = moveToDir(dir);
+ 			if (h != null) {
+ 				h.addCritter(this);
+-			}
+-			else
++			} else
+ 				sim.getWorld()[col][row].addCritter(this);
+-			
+ 		}
+-		
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Moves critter backward one step if possible
+ 	 */
+-	public void backward() {
++	public boolean backward() {
+ 		if (decEnergy(sim.constants.get("MOVE_COST").intValue() * mem[3]))
+-			return;
+-		
++			return false;
++
+ 		int backwardDir = (dir + 3) % 6;
+ 		if (nearby(backwardDir) == 0) {
+ 			sim.getWorld()[col][row] = new Hex();
+ 			Hex h = moveToDir(backwardDir);
+ 			if (h != null) {
+ 				h.addCritter(this);
+-			}
+-			else
++			} else
+ 				sim.getWorld()[col][row].addCritter(this);
+ 		}
+-		
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Turns critter left if {@code i} is -1 or right if 1
+ 	 * 
+ 	 * @param i
+-	 *        -1 to turn left, 1 to turn right
++	 *            -1 to turn left, 1 to turn right
+ 	 */
+-	public void turn(int i) {
++	public boolean turn(int i) {
+ 		if (decEnergy(mem[3]))
+-			return;
+-		
++			return false;
++
+ 		dir += i;
+ 		if (dir == -1)
+ 			dir = 5;
+ 		dir %= 6;
++
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Eats food in front if possible, increasing critter's energy
+ 	 */
+-	public void eat() {
++	public boolean eat() {
+ 		if (decEnergy(mem[3]))
+-			return;
+-		
++			return false;
++
+ 		// If there is food
+ 		if (nearby(dir) < -1) {
+-			int maxEdible = mem[3]
+-					* sim.constants.get("ENERGY_PER_SIZE").intValue() - mem[4];
++			int maxEdible = mem[3] * sim.constants.get("ENERGY_PER_SIZE").intValue() - mem[4];
+ 			if ((-(nearby(dir) + 1)) > maxEdible) {
+ 				mem[4] += maxEdible;
+ 				hexAtDir(dir).addFood(-maxEdible);
+@@ -380,72 +490,80 @@ public class Critter {
+ 				hexAtDir(dir).addFood(-hexAtDir(dir).getFood());
+ 			}
+ 		}
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Decrease energy by {@code amount} and places it as food in Hex in front
++	 * 
+ 	 * @param amount
+-	 * 		Amount of food to serve
++	 *            Amount of food to serve
+ 	 */
+-	public void serve(int amount) {
++	public boolean serve(int amount) {
+ 		if (nearby(dir) == 0 || nearby(dir) < -1) {
+ 			if (amount > mem[4])
+ 				amount = mem[4];
+ 			decEnergy(amount + mem[3]);
+-			hexAtDir(dir).addFood(amount);
++			if(hexAtDir(dir) != null)
++				hexAtDir(dir).addFood(amount);
++			return true;
+ 		}
++		return false;
+ 	}
+-	
++
+ 	/**
+ 	 * Attacks critter in front if able
+ 	 */
+-	public void attack() {
++	public boolean attack() {
+ 		if (decEnergy(mem[3] * sim.constants.get("ATTACK_COST").intValue()))
+-			return;
+-		
++			return false;
++
+ 		// If there is a critter
+ 		if (nearby(dir) > 0)
+ 			dealDamage(hexAtDir(dir).getCritter());
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Tags a critter in front
++	 * 
+ 	 * @param t
+-	 * 		Tag to apply
++	 *            Tag to apply
+ 	 */
+-	public void tag(int t) {
++	public boolean tag(int t) {
+ 		if (decEnergy(mem[3]))
+-			return;
+-		
++			return false;
++
+ 		if (nearby(dir) > 0)
+ 			hexAtDir(dir).getCritter().mem[6] = t;
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Grows by one size if possible
+ 	 */
+-	public void grow() {
+-		int energy = mem[3] * complexity()
+-				* sim.constants.get("GROW_COST").intValue();
++	public boolean grow() {
++		int energy = mem[3] * complexity() * sim.constants.get("GROW_COST").intValue();
+ 		if (decEnergy(energy))
+-			return;
+-		
++			return false;
++
+ 		mem[3] = mem[3] + 1;
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Buds and spawns a critter behind if possible (chance of mutation)
+ 	 */
+-	public void bud() {
++	public boolean bud() {
+ 		if (decEnergy(sim.constants.get("BUD_COST").intValue() * complexity()))
+-			return;
+-		
++			return false;
++
+ 		Random r = new Random();
+ 		int p = r.nextInt(4); // probability of mutation
+-		
++
+ 		int newCol = col;
+ 		int newRow = row;
+-		
++
+ 		switch (dir) {
+ 		case 0:
+ 			newRow--;
+@@ -468,19 +586,18 @@ public class Critter {
+ 			newCol++;
+ 			break;
+ 		}
+-		
+-		Critter baby = new Critter(program, species, newCol, newRow, mem, dir,
+-				this.sim);
+-		
++
++		Critter baby = new Critter(program, species, newCol, newRow, mem, dir, this.sim);
++
+ 		while (p == 0) {
+ 			int i = r.nextInt(2); // probability of mutating Program
+-			
++
+ 			if (i == 0)
+ 				baby.program = baby.program.mutate();
+ 			else {
+ 				i = r.nextInt(3); // probability of changing each attribute
+ 				int a = r.nextInt(2); // increment or decrement
+-				
++
+ 				switch (i) {
+ 				case 0:
+ 					baby.mem[0] = a == 0 ? baby.mem[0] + 1 : baby.mem[0] - 1;
+@@ -499,20 +616,22 @@ public class Critter {
+ 					break;
+ 				}
+ 			}
+-			
++
+ 			p = r.nextInt(4);
+ 		}
+-		
++
+ 		baby.mem[3] = 1;
+ 		baby.mem[4] = sim.constants.get("INITIAL_ENERGY").intValue();
+ 		baby.mem[6] = 0;
+ 		baby.mem[7] = 0;
+-		
++
+ 		sim.addCritter(newCol, newRow, baby);
++		return true;
+ 	}
+-	
++
+ 	/**
+ 	 * Returns complexity factor
++	 * 
+ 	 * @return Complexity
+ 	 */
+ 	public int complexity() {
+@@ -522,11 +641,12 @@ public class Critter {
+ 		int abilityCost = sim.constants.get("ABILITY_COST").intValue();
+ 		return (r * ruleCost) + ((mem[1] + mem[2]) * abilityCost);
+ 	}
+-	
++
+ 	/**
+ 	 * Deals damage to {@code victim} critter
++	 * 
+ 	 * @param victim
+-	 * 		Critter getting attacked
++	 *            Critter getting attacked
+ 	 */
+ 	public void dealDamage(Critter victim) {
+ 		double base = sim.constants.get("BASE_DAMAGE");
+@@ -537,7 +657,53 @@ public class Critter {
+ 		int d2 = victim.mem[1];
+ 		double x = inc * (s1 * o1 - s2 * d2);
+ 		double p = 1. / (1 + Math.pow(Math.E, -x));
+-		
++
+ 		victim.mem[4] -= (int) (base * s1 * p);
+ 	}
++
++	/**
++	 * Returns column of critter
++	 * 
++	 * @return Critter's column
++	 */
++	public int col() {
++		return col;
++	}
++
++	/**
++	 * Returns row of critter
++	 * 
++	 * @return Critter's row
++	 */
++	public int row() {
++		return row;
++	}
++
++	/**
++	 * Returns index of rule {@code r} in program
++	 * 
++	 * @param r
++	 *            Rule to look for
++	 * @return Index of rule {@code r}
++	 */
++	public int indexOf(Rule r) {
++		for (int i = 0; i < program.getRules().size(); i++) {
++			if (program.getRules().get(i).equals(r))
++				return i;
++		}
++		return 0;
++	}
++
++	/**
++	 * Returns if critter's id matches {@code id} or if id is an admin id which has
++	 * a "2" in front
++	 * 
++	 * @param id
++	 *            Id to check
++	 * @return Whether IDs match
++	 */
++	public boolean viewableBy(int id) {
++		String prefix = String.valueOf(id).substring(0, 1);
++		return prefix.equals("2") || creatorId == id;
++	}
+ }
+diff --git a/src/main/java/simulator/HexNode.java b/src/main/java/simulator/HexNode.java
+new file mode 100644
+index 0000000..4907994
+--- /dev/null
++++ b/src/main/java/simulator/HexNode.java
+@@ -0,0 +1,105 @@
++package simulator;
++
++import java.util.Comparator;
++
++public class HexNode implements Comparator<HexNode>, Comparable<HexNode>{
++	private int col;
++	private int row;
++	private int direction;
++	private int distance;
++	private HexNode parent;
++	
++	public HexNode(int c, int r, int dir, int dist, HexNode parent) {
++		col = c;
++		row = r;
++		direction = dir;
++		distance = dist;
++		this.parent = parent;
++	}
++	
++	public int col() {
++		return col;
++	}
++	
++	public int row() {
++		return row;
++	}
++	
++	public int dir() {
++		return direction;
++	}
++	
++	public int dist() {
++		return distance;
++	}
++	
++	public HexNode parent() {
++		return parent;
++	}
++	
++	public void setDist(int distance) {
++		this.distance = distance;
++	}
++	
++	public void setParent(HexNode parent) {
++		this.parent = parent;
++	}
++	
++	/**
++	 * Makes a HexNode representing the hex in front of the current one,
++	 * given the orientation of the critter.
++	 * Distance is one more than distance of this object.
++	 * @return
++	 */
++	public HexNode forward() {
++		int newCol;
++		int newRow;
++		
++		switch (direction) {
++		case 0:
++			newCol = col;
++			newRow = row + 1;
++			break;
++		case 1:
++			newCol = col + 1;
++			newRow = row + 1;
++			break;
++		case 2:
++			newCol = col + 1;
++			newRow = row;
++			break;
++		case 3:
++			newCol = col;
++			newRow = row - 1;
++			break;
++		case 4:
++			newCol = col - 1;
++			newRow = row - 1;
++			break;
++		default:
++			newCol = col - 1;
++			newRow = row;
++			break;
++		}
++		return new HexNode(newCol, newRow, direction, distance + 1, this);
++	}
++	
++	public boolean equals(Object obj) {
++		if(!(obj instanceof HexNode))
++			return false;
++		
++		HexNode n = (HexNode) obj;
++		return row == n.row() && direction == n.dir() && col == n.col();
++	}
++
++	@Override
++	public int compare(HexNode o1, HexNode o2) {
++		return o1.distance - o2.distance; 
++	}
++
++	@Override
++	public int compareTo(HexNode o) {
++		return distance - o.distance; 
++	}
++	
++}
+diff --git a/src/main/java/simulator/ServerSimulator.java b/src/main/java/simulator/ServerSimulator.java
+new file mode 100644
+index 0000000..e474853
+--- /dev/null
++++ b/src/main/java/simulator/ServerSimulator.java
+@@ -0,0 +1,223 @@
++package simulator;
++
++import java.io.BufferedReader;
++import java.io.ByteArrayInputStream;
++import java.io.IOException;
++import java.io.InputStreamReader;
++import java.io.Reader;
++import java.util.ArrayList;
++import java.util.Random;
++
++import ast.Program;
++import interpret.Outcome;
++import parse.Constants;
++import parse.Parser;
++import parse.ParserFactory;
++
++/**
++ * A model of the critter world.  This is a version of 
++ * the simulator that works with a server to send out
++ * information.
++ */
++public class ServerSimulator extends SimulatorImpl {
++
++	ArrayList<Critter> deadCritters; //pointer to Server's deadcritter list
++	int version; //version number
++
++	/**
++	 * Makes a new world, size specified in constants and populated
++	 * randomly with rocks
++	 * @param deadCritters  the list to add to when critters die
++	 * @param oldVersion  the version number of the world that this
++	 * is replacing.  If this is the first world, oldVersion = 0
++	 */
++	public ServerSimulator(ArrayList<Critter> deadCritters, int oldVersion) {
++		super();
++		this.deadCritters = deadCritters;
++		version = oldVersion + 1;
++	}
++
++	/**
++	 * Creates a new world according to the specificied description (worldDef).
++	 * Ignores any critters 
++	 * @param worldDef  A String containing the sizes and inhabitants of world
++	 * @param deadCritters  the list to add to when critters die
++	 * @param oldVersion  the version number of the world that this
++	 * is replacing.  If this is the first world, oldVersion = 0
++	 */
++	public ServerSimulator(String worldDef, ArrayList<Critter> deadCritters, int oldVersion) {
++
++		Reader r = new InputStreamReader(new ByteArrayInputStream(worldDef.getBytes()));
++		BufferedReader br = new BufferedReader(r);
++
++		critters = new ArrayList<Critter>();
++		constants = new Constants().getConstants();
++
++		try {
++			readWord(br); // should be "name"
++			String name = br.readLine();
++			readWord(br); // should be "size"
++			int col = Integer.parseInt(readWord(br));
++			int row = Integer.parseInt(readWord(br));
++
++			this.name = name;
++			timeStep = 0;
++			world = new Hex[col][row];
++			for (int i = 0; i < col; i++)
++				for (int j = 0; j < row; j++)
++					world[i][j] = new Hex();
++
++			while (br.ready()) {
++				String word = readWord(br);
++				if (word.equals("rock")) {
++					col = Integer.parseInt(readWord(br));
++					row = Integer.parseInt(readWord(br));
++					addRock(col, row);
++				} else if (word.equals("food")) {
++					col = Integer.parseInt(readWord(br));
++					row = Integer.parseInt(readWord(br));
++					int amount = Integer.parseInt(readWord(br));
++					addFood(col, row, amount);
++				} else if (word.equals("critter")) {
++					readWord(br); // filename
++					readWord(br); // col
++					readWord(br); // row
++					readWord(br); // dir
++				} else if (word.equals("//")) {
++					br.readLine(); // Comment lines
++				}
++			}
++		} catch (NumberFormatException e) {
++			throw new IllegalArgumentException();
++		} catch (IOException e) {
++			throw new IllegalArgumentException();
++		}
++
++		this.deadCritters = deadCritters;
++		version = oldVersion + 1;
++	}
++
++	/**
++	 * Advances time n steps and updates log by adding version
++	 * numbers of new changes to hexes that were changed.
++	 * @param n number of steps
++	 * @param log log of the last version in which each hex was changed
++	 */
++	public void advanceTime(int n, Integer[][] log) {
++
++		for (int i = 0; i < n; i++) {
++			ArrayList<Critter> matingCritters = new ArrayList<Critter>();
++			version++;
++			
++			for (int j = critters.size() - 1; j >= 0; j--) {
++				Critter c = critters.get(j);
++				log[c.col][c.row] = version;
++
++				Outcome o = c.advanceTime();
++				if (o.isMate())
++					matingCritters.add(c);
++
++				if (o.changed()) {
++					if(isInBounds(o.getCol(), o.getRow()))
++						log[o.getCol()][o.getRow()] = version;
++				}
++
++			}
++
++			mateCritters(matingCritters);
++			timeStep++;
++		}
++
++	}
++
++	/**
++	 * Add the specified critter to the simulation in a random location
++	 * @param program 
++	 * 			Critter's program
++	 * @param species
++	 * 			Name of species
++	 * @param mem
++	 * 			mem array of critter
++	 * @param critterId
++	 * 			Id that serve assigned critter
++	 * @param createId
++	 * 			sessionId of user who created critter
++	 * @return
++	 * 			whether or not critter was added
++	 */	
++	public boolean loadCritter(String program, String species, int[] mem, int critterId, int createId) {
++		Random rand = new Random();
++		int col = -1;
++		int row = -1;
++		while (!isInBounds(col, row)) {
++			col = rand.nextInt(world.length);
++			row = rand.nextInt(world[0].length);
++		}
++		int dir = rand.nextInt(6);
++		version++;
++		return loadCritter(program, col, row, dir, species, mem, critterId, createId);
++	}
++
++	/**
++	 * Add the specified critter to the simulation at specified location
++	 * @param program 
++	 * 			Critter's program
++	 * @param col  column
++	 * @param row  row
++	 * @param species
++	 * 			Name of species
++	 * @param mem
++	 * 			mem array of critter
++	 * @param critterId
++	 * 			Id that serve assigned critter
++	 * @param createId
++	 * 			sessionId of user who created critter
++	 * @return
++	 * 			whether or not critter was added
++	 */	
++	public boolean loadCritter(String program, int col, int row, int dir, String species, int[] mem, int critId,
++			int createId) {
++		Reader r = new InputStreamReader(new ByteArrayInputStream(program.getBytes()));
++		BufferedReader br = new BufferedReader(r);
++
++		Parser parser = ParserFactory.getParser();
++		Program p = parser.parse(br);
++		if (p == null)
++			return false;
++
++		Critter c = new Critter(p, species, col, row, mem, dir, this);
++		c.setIds(critId, createId);
++
++		// check if is in bounds and is empty
++		if (isInBounds(col, row) && isEmpty(col, row)) {
++			world[col][row].addCritter(c);
++			critters.add(c);
++			version++;
++			return true;
++		}
++
++		return false;
++	}
++
++	@Override
++	public void die(Critter c) {
++		super.die(c);
++		deadCritters.add(c);
++		version++;
++	}
++	
++	/**
++	 * @return version number of latest simulation
++	 */
++	public int version() {
++		return version;
++	}
++	
++	/**
++	 * Returns a list of critters that have died
++	 * @return dead critters list
++	 */
++	public ArrayList<Critter> getDeadCritters() {
++		return deadCritters;
++	}
++}
+diff --git a/src/main/java/simulator/SimulatorImpl.java b/src/main/java/simulator/SimulatorImpl.java
+index fe280ec..eecb27a 100644
+--- a/src/main/java/simulator/SimulatorImpl.java
++++ b/src/main/java/simulator/SimulatorImpl.java
+@@ -20,11 +20,11 @@ import parse.ParserFactory;
+ import parse.SpecParser;
+ 
+ public class SimulatorImpl implements Simulator {
+-	private String name;
+-	private Hex[][] world;
+-	private ArrayList<Critter> critters;
++	protected String name; //Was private
++	protected Hex[][] world; //Was private
++	protected ArrayList<Critter> critters; //Was private
+ 	protected HashMap<String, Double> constants;
+-	private int timeStep;
++	protected int timeStep;
+ 	String filepath;
+ 	
+ 	/**
+@@ -125,12 +125,13 @@ public class SimulatorImpl implements Simulator {
+ 	 *        BufferedReader to use
+ 	 * @return The word that was read
+ 	 */
+-	private String readWord(BufferedReader br) {
++	protected String readWord(BufferedReader br) {
+ 		char c;
+ 		String word = "";
+ 		try {
+-			while (!Character.isWhitespace((c = (char) br.read())))
+-				word += c;
++			while (!Character.isWhitespace((c = (char) br.read())) && c!= 65535) {
++				word+= c;
++			}
+ 		} catch (IOException e) {
+ 			return null;
+ 		}
+@@ -145,8 +146,13 @@ public class SimulatorImpl implements Simulator {
+ 	 * @param row
+ 	 *        Row of rock
+ 	 */
+-	public void addRock(int col, int row) {
+-		world[col][row].addRock();
++	public boolean addRock(int col, int row) {
++		if (isInBounds(col, row) && isEmpty(col, row)) {
++			world[col][row].addRock();
++			return true;
++		}
++		
++		return false;
+ 	}
+ 	
+ 	/**
+@@ -159,8 +165,13 @@ public class SimulatorImpl implements Simulator {
+ 	 * @param amount
+ 	 *        Amount of food to add
+ 	 */
+-	public void addFood(int col, int row, int amount) {
+-		world[col][row].addFood(amount);
++	public boolean addFood(int col, int row, int amount) {
++		if (isInBounds(col, row) && isEmpty(col, row)) {
++			world[col][row].addFood(amount);
++			return true;
++		}
++		
++		return false;
+ 	}
+ 	
+ 	public void addCritter(int col, int row, Critter c) {
+@@ -252,9 +263,10 @@ public class SimulatorImpl implements Simulator {
+ 	 *        Steps to advance
+ 	 */
+ 	public void advanceTime(int n) {
+-		ArrayList<Critter> matingCritters = new ArrayList<Critter>();
+ 		
+-		for (int i = 0; i < n; i++)
++		for (int i = 0; i < n; i++) {
++			ArrayList<Critter> matingCritters = new ArrayList<Critter>();
++			
+ 			for (int j = critters.size() - 1; j >= 0; j--) {
+ 				Critter c = critters.get(j);
+ 				Outcome o = c.advanceTime();
+@@ -262,6 +274,13 @@ public class SimulatorImpl implements Simulator {
+ 					matingCritters.add(c);
+ 			}
+ 		
++			mateCritters(matingCritters);
++		}
++		
++		timeStep += n;
++	}
++	
++	public void mateCritters(ArrayList<Critter> matingCritters) {
+ 		for (int i = 0; i < matingCritters.size(); i++) {
+ 			Critter c1 = matingCritters.get(i);
+ 			Critter c2 = c1.hexAtDir(c1.getDir()).getCritter();
+@@ -284,8 +303,6 @@ public class SimulatorImpl implements Simulator {
+ 				}
+ 			}
+ 		}
+-		
+-		timeStep += n;
+ 	}
+ 	
+ 	/**
+@@ -446,6 +463,14 @@ public class SimulatorImpl implements Simulator {
+ 		return timeStep;
+ 	}
+ 	
++	/**
++	 * Returns array list of living critters
++	 * @return Arraylist of living critters
++	 */
++	public ArrayList<Critter> getCritters() {
++		return critters;
++	}
++	
+ 	/**
+ 	 * Returns if the hex is in bounds
+ 	 * 
+@@ -489,4 +514,8 @@ public class SimulatorImpl implements Simulator {
+ 			}
+ 		return count;
+ 	}
++	
++	public String getName() {
++		return name;
++	}
+ }
+diff --git a/src/main/java/tests/ServerTester.java b/src/main/java/tests/ServerTester.java
+new file mode 100644
+index 0000000..ef792c9
+--- /dev/null
++++ b/src/main/java/tests/ServerTester.java
+@@ -0,0 +1,5 @@
++package tests;
++
++public class ServerTester {
++
++}
+diff --git a/src/main/java/tests/SmellTest.java b/src/main/java/tests/SmellTest.java
+new file mode 100644
+index 0000000..bc2980e
+--- /dev/null
++++ b/src/main/java/tests/SmellTest.java
+@@ -0,0 +1,5 @@
++package tests;
++
++public class SmellTest {
++
++}

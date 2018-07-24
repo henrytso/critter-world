@@ -1,0 +1,539 @@
+commit 29e2d5e3abd28f7ea113ef2694a0729b48019341
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Sun Dec 3 10:06:22 2017 -0500
+
+    made updating thread,fixed errors in client. tested additional server functions
+
+commit e30cd70abbcc2434be542f9f2ae2aba8032705bc
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Fri Dec 1 01:27:47 2017 -0500
+
+    draw world,load critter works
+
+commit a1c7547058c27ed1aa5d0c617d5262e7522e70c4
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Nov 30 19:16:17 2017 -0500
+
+    server post world works, client doesn't call it
+
+commit bacfcff2c5e1961239d904745d6bbab16cf69cbb
+Author: Henry <ht372@cornell.edu>
+Date:   Thu Nov 30 16:29:53 2017 -0500
+
+    fixed button null pointer
+
+commit ee7be8cdeb86e8ea559540c79c4b8e8e650a7e88
+Author: Henry <ht372@cornell.edu>
+Date:   Thu Nov 30 00:48:45 2017 -0500
+
+    finished client, made login, works with errors
+
+commit 04027c37effc79c19289bb275a950602eaac2d67
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Nov 29 20:04:29 2017 -0500
+
+    switch between login screen, world screen and readwrite locks
+
+commit 6643de4d0b4dc818ceea5de3a5f13707a99c1c33
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Nov 29 06:42:23 2017 -0500
+
+    clintController methods
+
+commit b8f734a448e9f7ab2e9e17613d2120dd30e3b52c
+Author: Henry <ht372@cornell.edu>
+Date:   Tue Nov 28 00:35:33 2017 -0500
+
+    did stuff, some client, and stuff (together)
+
+commit 71f5f2f6d9ca5d968a27a779fdc22c7f8ca94f38
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Nov 27 09:54:30 2017 -0500
+
+    getworld() server and ClientGrid
+
+commit f45f136bf585144df0e971bc15b34bccf5c82756
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Nov 27 06:39:18 2017 -0500
+
+    server get,push,delete methods
+
+commit 7ee3c9d86511aeb42cd47369fbbc71992067ed82
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Sun Nov 26 03:33:04 2017 -0500
+
+    make critters, run server test
+
+commit 0a787de6dd6af618cf6255f35c347cde57f8b7a1
+Author: Henry <ht372@cornell.edu>
+Date:   Fri Nov 24 02:53:21 2017 -0500
+
+    sessionID, get /critters
+
+commit aa516e79b55545d1163330acbb580249c7526f9a
+Author: Henry <ht372@cornell.edu>
+Date:   Thu Nov 23 21:05:19 2017 -0500
+
+    made like one class sorry
+
+commit 745e82590fcbeb205b2141b01dc0d5a65b7bbd1c
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Nov 23 04:18:11 2017 -0500
+
+    critter smell
+
+commit 5ff3e15be702389b87232b353a98c57f37b0a414
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Nov 22 05:02:06 2017 -0500
+
+    logoutcome, serversimulator advancetime
+
+commit 8bb6cd3e929cef921c116ee9db0ee625d9358f82
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Tue Nov 21 17:15:47 2017 -0500
+
+    changed actions to return LogOutcomes
+
+commit 36965f8712458b3edce72bb413b957920383af78
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Nov 20 20:21:24 2017 -0500
+
+    gradle, fixed server errors
+
+commit 5fd885dfb0135e8dc3374f012a9d7b4b6b5282a8
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Mon Nov 20 18:07:03 2017 -0500
+
+    created client + server, login post method in server
+
+commit 1b1cc98e72d931ab3b2459f29bffee71fe988deb
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 23:01:19 2017 -0500
+
+    better looking load world popup
+
+commit 7c04201abb9aae2da84a4f6a02fd5ab3d30235ca
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 22:19:24 2017 -0500
+
+    close button
+
+commit 81769693bee1485eecfc2e40f4cdf7a52b63f1a4
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Nov 9 21:54:42 2017 -0500
+
+    javadoc
+
+commit 25bb8de8700fb40a1a5aa2b84783ca5f19b3e9ab
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 21:00:48 2017 -0500
+
+    finalized, need javadoc
+
+commit 103205a8ce0b5296f55dc74e9f07ed655db6736d
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Nov 9 16:14:46 2017 -0500
+
+    gradle
+
+commit 38e88209ee9d00d928272ff2d85bb3a0a307d375
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Nov 9 16:11:59 2017 -0500
+
+    added keys, fixed slider
+
+commit 99f08999ae045a3f59d42e57ed89ec9b51a9c2cf
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 14:21:07 2017 -0500
+
+    deleted updater thread, works mostly
+
+commit 9bf8f9b51121fd7225a207d38c8a71a85b261faf
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 14:13:58 2017 -0500
+
+    idk
+
+commit 9af6765e95bc3cb709c5eb189c3f13840233acf4
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Nov 9 02:51:23 2017 -0500
+
+    threading problems, show critter dir
+
+commit fd58ca3cef068d8097e3a097817d2e00dade0bc1
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Nov 8 16:57:51 2017 -0500
+
+    Mouse listener works
+
+commit 1c5fa123187bb9ce8da2466c67327c1b49a12791
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Nov 8 15:26:07 2017 -0500
+
+    hex click math (together)
+
+commit 95ea42223a399ab39c78a2cc1946138cc36acd90
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Nov 8 13:07:56 2017 -0500
+
+    a little critter info
+
+commit 06a27735d7504b820a91d33b6e22281ff4aab85f
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Nov 8 04:07:35 2017 -0500
+
+    messagebox, buttons (together)
+
+commit 6a9e2243e936add8cd878e9b78a2a3f6e9d01a85
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Nov 6 02:53:15 2017 -0500
+
+    fixed load_critter
+
+commit 1b532babe1bc8e1f9042464f578b1d7792c76444
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Nov 6 02:45:15 2017 -0500
+
+    start and stop world
+
+commit c0eb338a14f1540132118508dd2bdc064c977f34
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Sun Nov 5 21:03:33 2017 -0500
+
+    drew worldgit status! (together)
+
+commit f79e4b67e8fe3b593937f84ec27ce9bb2126e037
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Sun Nov 5 01:59:55 2017 -0500
+
+    fixed git conflict
+
+commit 951c2556198bb4df5ed63d6583187373898333a4
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Sat Nov 4 22:42:17 2017 -0400
+
+    did some methods in controller, added buttons (together)
+
+commit 9130d8c722cc3f718297a3115e103b36d3573cb8
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Fri Nov 3 22:32:06 2017 -0400
+
+    just pushing
+
+commit a03fe3e9f2af8ea475a1e5a8673aad9dbb99c865
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Tue Oct 31 14:47:19 2017 -0400
+
+    removed extraneous files
+
+commit 14217949070fb6515e6e2226bd751cedf698c569
+Merge: 45296d7 494678f
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Tue Oct 31 14:43:52 2017 -0400
+
+    Merge https://github.coecis.cornell.edu/cs2112-f17/team-ht372-ycs4-cw
+
+commit 494678f8204bc146321ab635f94b5250b7244ec5
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Thu Oct 26 18:13:11 2017 -0400
+
+    specparser changes
+
+commit 45296d7cd6205cc87c4a691490801c909ea77d0d
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Thu Oct 26 17:31:15 2017 -0400
+
+    for submission
+
+commit f3ddcb9a75d2dc3615d7920f8d16e0a6773c4785
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Oct 25 23:52:06 2017 -0400
+
+    Tested different critter programs and acitons
+
+commit 70d250f743a30a890e6ad50dfe8032f447737523
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 23:22:35 2017 -0400
+
+    SimulatorImpl, created complex critter program, testedgit status!
+
+commit f3aea845d0ea0a2a2651ba3c6d16b547e6c34171
+Merge: fc986e6 6b14a3c
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 18:29:16 2017 -0400
+
+    Merge https://github.coecis.cornell.edu/cs2112-f17/team-ht372-ycs4-cw
+
+commit fc986e6b8a8c60f9defa22cee52387d03a68e942
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 18:29:10 2017 -0400
+
+    some javadoc and started writen
+
+commit c6c3ab337a5fa153bd4941bb019fdfb40a227bc5
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 18:26:25 2017 -0400
+
+    some javadoc, started written
+
+commit c3bb434ca5ccbee07f191c6ac472f37026d612b4
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 18:06:36 2017 -0400
+
+    javadoc and started written
+
+commit 6b14a3c649e213d950a6391dbc1a1ff8a034f579
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Oct 25 05:21:08 2017 -0400
+
+    fixed bounds
+
+commit f14c2c242c66c3332851e7b27ad70b855824c6e7
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Oct 25 02:57:49 2017 -0400
+
+    dying fixed, bud tested
+
+commit 50a938e28e770baa3c755d84dec0040ce361ec59
+Merge: 67ee342 1c6959d
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Oct 25 02:39:59 2017 -0400
+
+    same stuff
+
+commit 67ee342977076e92084a11eca53758bf634a8a4e
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Wed Oct 25 02:10:03 2017 -0400
+
+    dying fixed
+
+commit 1c6959deea9d25897a0e80c1700a8b2d602a84f5
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Wed Oct 25 01:24:28 2017 -0400
+
+    Finished critter actions, testing (not removing some dead critters
+
+commit a10fd26056048b8a72936bef3cbcd1e89201ec58
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Tue Oct 24 06:50:47 2017 -0400
+
+    CritterRunner and tested console
+
+commit 415faba76dd2dbe143fecf4aa0e13effa4ef8364
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Tue Oct 24 01:26:33 2017 -0400
+
+    Finished console, most Javadoc finished (heck yea), some Critter stuff (together)
+
+commit 7991ef5a55b307739a5214ff0c7b7ad5b75d7dd3
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Sun Oct 22 18:22:53 2017 -0400
+
+    Added simulator package with the basic framework (together)
+
+commit 1bc1a3a2fdff8bf88507343e4efa12e16c3f2667
+Merge: 8e8e66b 815597a
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Tue Oct 17 07:59:22 2017 -0400
+
+    Merge branch 'master' of github.coecis.cornell.edu:cs2112-f17/a4-release
+
+commit 8e8e66b396edb341c2b1f0ddc2ac30925a2242c7
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Oct 16 23:03:13 2017 -0400
+
+    changed test
+
+commit beb0d02f932b23e9d3d26dca4ae122be26143955
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Mon Oct 16 22:38:36 2017 -0400
+
+    Javadoc added
+
+commit 07befad324923cc97ad3e1077e00730b7ea69f7a
+Author: Yasmin Chandini Sarita <ycs4@cornell.edu>
+Date:   Mon Oct 16 04:36:13 2017 -0400
+
+    Delete RemoveThis.java
+
+commit fa3169c7ddadb495c89bb5c8768ba5af206ca321
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Mon Oct 16 03:45:12 2017 -0400
+
+    cmd line interface
+
+commit f2178724e77752426e98ea4104fdee37aec574db
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Mon Oct 16 03:20:55 2017 -0400
+
+    Mostly finalized mutations
+
+commit 815597af6fb9f775869ef2ba51bb5d6f66027c42
+Author: Shiyu <sw673@cornell.edu>
+Date:   Sun Oct 15 18:38:42 2017 -0400
+
+    update A5 README
+
+commit c6409fbe7f357fecf2beab7162e4fd9cca1b9c78
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Sun Oct 15 16:07:32 2017 -0400
+
+    4pm Sunday
+
+commit 34e8565a7def5b2d92cbab79e633abcbdee17189
+Author: henrytso <31811065+henrytso@users.noreply.github.com>
+Date:   Sun Oct 15 14:39:38 2017 -0400
+
+    Added clone() with successful test
+
+commit a351323f10c072bde1b3f61a85edbddcfec6858b
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Sun Oct 15 08:11:09 2017 -0400
+
+    stuff for mutations
+
+commit ba7a444e359768787d09325c8f4f2618c66ab7b0
+Author: Yasmin <ycs4@cornell.edu>
+Date:   Sun Oct 15 07:06:51 2017 -0400
+
+    aststuff
+
+commit d8c3aa8b584ede7a25e30f0ce44137271248f632
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Sat Oct 14 07:48:38 2017 -0400
+
+    Revert "Remove a4 main class"
+    
+    This reverts commit 620c7a43d207103c789c3fb1c4c2290bae429a95.
+
+commit 8903ca5826cbcffb5d969663e051fb3d949ed641
+Author: Shiyu <sw673@cornell.edu>
+Date:   Fri Oct 13 23:03:05 2017 -0400
+
+    added example world and critter
+
+commit 01683953258616d8f04a2a1a243b74bdae4fdfc3
+Author: Shiyu <sw673@cornell.edu>
+Date:   Fri Oct 13 22:54:15 2017 -0400
+
+    update main class in build.gradle
+
+commit 620c7a43d207103c789c3fb1c4c2290bae429a95
+Author: Shiyu <sw673@cornell.edu>
+Date:   Fri Oct 13 22:48:04 2017 -0400
+
+    Remove a4 main class
+
+commit e0892b69efdf555834a762fa1e1afcf557191e94
+Author: Shiyu <sw673@cornell.edu>
+Date:   Fri Oct 13 22:19:12 2017 -0400
+
+    Initial commit for A5
+
+commit ec0c0cbfcf07c48337cb8418401fd0706f517d00
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Wed Sep 27 07:00:30 2017 -0400
+
+    fix build.gradle
+
+commit 04b331b5522051b14e575f07b2604064ff6a2331
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Wed Sep 27 06:57:53 2017 -0400
+
+    update main class in jar
+
+commit 12522579bc0cd8c1ac044bf393c472d01c0b8bbc
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Wed Sep 27 06:56:20 2017 -0400
+
+    update readme
+
+commit a93e8a384e79dcf6275a0388d7c2e7903fdea7d9
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Wed Sep 27 06:54:42 2017 -0400
+
+    update readme
+
+commit 36f6c0347f6c3833028aa5e3d85a2cd1bf552a7c
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Tue Sep 26 20:28:47 2017 -0400
+
+    update gitignore
+
+commit 8821b53a01fc5c1b3ed87534b79dc77701244810
+Author: Jacob Glueck <swimgiraffe435@gmail.com>
+Date:   Tue Sep 26 20:15:08 2017 -0400
+
+    rename
+
+commit 7df160b24f17047dc8728648aef62e25d002364e
+Author: Kenneth Wang Fang <kwf37@cornell.edu>
+Date:   Sun Sep 24 21:33:33 2017 -0400
+
+    Update README.md
+
+commit eaec237ed515ae2af243f363faf468de1f0bf79d
+Author: Kenneth Wang Fang <kwf37@cornell.edu>
+Date:   Sun Sep 24 19:19:05 2017 -0400
+
+    Update README.md
+
+commit f3047f3b22aab046b1bcad165dd49edee47efa6e
+Author: Travis Stephen Westura <tsw52@cornell.edu>
+Date:   Sun Sep 24 16:07:29 2017 -0400
+
+    Updated README.md to fix a few typos
+
+commit 20b5fdf1415a432f9883ecea18a3693e50f637e9
+Author: Kenneth Wang Fang <kwf37@cornell.edu>
+Date:   Sun Sep 24 15:04:08 2017 -0400
+
+    Added some gradle info
+
+commit 9071e6c4bea8d968e0228b7c421f3389cc3f3164
+Author: Kenneth Wang Fang <kwf37@cornell.edu>
+Date:   Sun Sep 24 14:28:28 2017 -0400
+
+    Added Git instructinos
+
+commit f35fb464b5841565a1d7499cfada19183b1a1f02
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 19:01:04 2017 -0400
+
+    small update to example test
+
+commit e166fa58cf171728212f8b39a5654485f796d41c
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:59:35 2017 -0400
+
+    Add example test
+
+commit f68e672761aaf65c8d725208c6e96a949ffe0518
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:32:19 2017 -0400
+
+    Add readme file to the test directory
+
+commit 0962bf39e4b12cde0a84e89e705ba3590dae28ea
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:30:05 2017 -0400
+
+    Update jar output in gradle build file
+
+commit 614cf3ad27c42a61bfc1555f1d87ccaa1efcceda
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:28:02 2017 -0400
+
+    Move example program resources to the test
+
+commit 69d53902393fb0cab3dd9cba9a187a11d7466bbb
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:25:39 2017 -0400
+
+    Remove repeated resources folder
+
+commit fe07f661c087d1eaab52333f88fc237afd0c9879
+Author: Travis Westura <twestura@gmail.com>
+Date:   Sat Sep 23 18:21:52 2017 -0400
+
+    Initial commit of a4 files
